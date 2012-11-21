@@ -1,13 +1,15 @@
 import random
 
+from card import Card
+
 class Deck:
     """
-    A Deck represents some number of sets of (suit, value)
-    cards. It supports the take() function, which removes
-    a card from the active pile of cards and transfers
-    ownership of it to the caller, and the give() function,
-    which transfers ownership of a card back to the deck.
-    Once a card has been give()n to the deck, it becomes
+    A Deck represents some number of sets of cards. It
+    supports the take() function, which removes a card
+    from the active pile of cards and transfers ownership
+    of it to the caller, and the give() function, which
+    transfers ownership of a card back to the deck. Once
+    a card has been give()n to the deck, it becomes
     inactive and will not be returned by take().
 
     Inactive cards will be shuffled and made active
@@ -40,8 +42,8 @@ class Deck:
         self.activePile = []
         for suit in range(self.suits):
             for value in range(self.values):
-                for i in range(self.sets):
-                    self.activePile.append((suit, value))
+                for _ in range(self.sets):
+                    self.activePile.append(Card(suit, value))
         self.inactivePile = []
         self.shuffle()
 

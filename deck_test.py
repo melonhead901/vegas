@@ -1,6 +1,9 @@
+# Copyright 2012 Elliott Brossard
+
 import random
 import unittest
 
+from card import Card
 from deck import Deck
 
 class DeckTest(unittest.TestCase):
@@ -27,10 +30,8 @@ class DeckTest(unittest.TestCase):
             cardCounts[card] = cardCounts.get(card, 0) + 1
             deck.give(card)
         deck.verifyFull()
-        for suit in range(deck.numSuits()):
-            for value in range(deck.numValues()):
-                card = (suit, value)
-                self.assertEqual(deck.numSets(), cardCounts.get(card, 0))
+        for (_, count) in cardCounts.items():
+            self.assertEqual(deck.numSets(), count)
 
     def test_singleSet(self):
         self.genericDeckTest(1, 1, 1)
@@ -95,7 +96,7 @@ class DeckTest(unittest.TestCase):
         # Try verifying that the deck is full when an invalid
         # card has been added.
         deck = Deck(1, 1, 1)
-        deck.give((5, 10))
+        deck.give(Card(5, 10))
         self.assertRaises(ValueError, deck.verifyFull)
 
 if __name__ == '__main__':

@@ -24,16 +24,16 @@ class Deck:
         """
         if sets < 1:
             raise ValueError(
-                "The number of sets must be at least " \
-                    "{0}".format(sets))
+                "The number of sets must be at least 1 (" \
+                    "{0} given)".format(sets))
         if suits < 1:
             raise ValueError(
-                "The number of suits must be at least " \
-                    "{0}".format(suits))
+                "The number of suits must be at least 1 (" \
+                    "{0} given)".format(suits))
         if values < 1:
             raise ValueError(
-                "The number of sets must be at least " \
-                    "{0}".format(values))
+                "The number of values must be at least 1 (" \
+                    "{0} given)".format(values))
         self.sets = sets
         self.suits = suits
         self.values = values
@@ -138,7 +138,7 @@ class Deck:
         Verify that all cards are present in the deck.
         """
         combinedPile = self.activePile + self.inactivePile
-        expectedCount = self.numUniqueCards() * self.numSets()
+        expectedCount = self.numCards()
         if len(combinedPile) != expectedCount:
             raise ValueError(
                 "Expected deck to contain {0} cards but it actually " \

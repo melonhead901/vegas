@@ -1,5 +1,3 @@
-# Copyright 2012 Elliott Brossard
-
 import random
 import unittest
 

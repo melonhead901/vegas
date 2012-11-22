@@ -1,6 +1,9 @@
 
 
-class Card:
+class Card:    
+    # Cards are 0-indexed so the ace's value is 0
+    ACE_VALUE = 0    
+    
     """
     A card represents a suit, value pair. Card suits
     are 0-based and are ordered as Clubs, Diamonds,

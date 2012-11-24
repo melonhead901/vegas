@@ -125,6 +125,80 @@ class Test(unittest.TestCase):
         hand.addCard(Card(1, 0))
         hand.addCard(Card(1, 10))
         self.assertTrue(hand.isBlackJack())
+
+    def test_compare(self):
+        hand1 = Hand()
+        hand1.addCard(Card(0, 6))
+        hand1.addCard(Card(0, 7))
+        hand2 = Hand()
+        hand2.addCard(Card(0, 9))
+        hand2.addCard(Card(0, 3))
+        self.assertGreater(hand1.compare(hand2), 0)
+        self.assertLess(hand2.compare(hand1), 0)
+        self.assertEqual(hand1.compare(hand1), 0)
+
+        # BlackJack should beat a normal 21 hand.
+        hand1 = Hand()
+        hand1.addCard(Card(0, 0))
+        hand1.addCard(Card(0, 11))
+        self.assertTrue(hand1.isBlackJack())
+        hand2 = Hand()
+        hand2.addCard(Card(0, 3))
+        hand2.addCard(Card(0, 9))
+        hand2.addCard(Card(0, 6))
+        self.assertEqual(21, hand2.getValidCount())
+        self.assertFalse(hand2.isBlackJack())
+        self.assertGreater(hand1.compare(hand2), 0)
+        self.assertLess(hand2.compare(hand1), 0)
+        self.assertEqual(hand1.compare(hand1), 0)
+
+    def test_equality(self):
+        hand1 = Hand()
+        hand1.addCard(Card(0, 6))
+        hand1.addCard(Card(0, 7))
+        hand2 = Hand()
+        hand2.addCard(Card(0, 9))
+        hand2.addCard(Card(0, 3))
+        self.assertNotEqual(hand1, hand2)
+
+        hand1 = Hand()
+        hand1.addCard(Card(0, 0))
+        hand1.addCard(Card(0, 11))
+        self.assertTrue(hand1.isBlackJack())
+        hand2 = Hand()
+        hand2.addCard(Card(0, 3))
+        hand2.addCard(Card(0, 9))
+        hand2.addCard(Card(0, 6))
+        self.assertNotEqual(hand1, hand2)
+
+        hand2 = Hand()
+        hand2.addCard(Card(1, 0))
+        hand2.addCard(Card(1, 11))
+        self.assertNotEqual(hand1, hand2)
+
+        hand2 = Hand()
+        hand2.addCard(Card(0, 0))
+        hand2.addCard(Card(0, 11))
+        self.assertEqual(hand1, hand2)
+
+    def test_str(self):
+        hand = Hand()
+        hand.addCard(Card(0, 6))
+        hand.addCard(Card(2, 4))
+        self.assertEqual("[7 of Clubs, 5 of Spades] with soft " \
+                             "count 12 and hard count 12", str(hand))
+
+        hand.addCard(Card(3, 10))
+        self.assertEqual("[7 of Clubs, 5 of Spades, Jack of " \
+                             "Hearts] with soft count 22 and " \
+                             "hard count 22 (Bust)", str(hand))
+
+        hand = Hand()
+        hand.addCard(Card(0, 0))
+        hand.addCard(Card(0, 12))
+        self.assertEqual("[Ace of Clubs, King of Clubs] with " \
+                             "soft count 21 and hard count 11 " \
+                             "(BlackJack)", str(hand))
         
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

@@ -57,6 +57,8 @@ class Card:
         return "{1} of {0}".format(self.suitString(),
                                    self.valueString())
 
+    __repr__ = __str__
+
     def suitString(self):
         if self.suit == 0:
             return "Clubs"

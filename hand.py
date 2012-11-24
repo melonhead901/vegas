@@ -1,46 +1,64 @@
 from card import Card
 
-"""
-Hand represents a collection of Cards a player may have in a particular round.
-"""
-class Hand:    
+class Hand:
+    """
+    Hand represents a collection of Cards a player
+    may have in a particular round.
+    """
     # Valid hand can have at most 21
     HAND_MAX = 21    
-    
-    """
-    Create a new empty hand
-    """
+
     def __init__(self):
-        # list of cards in the hand
+        """
+        Create a new empty hand.
+        """
+        # List of cards in the hand
         self.cards = []
-        
-        # the hard count of the hand
+        # The hard count of the hand
         self.count = 0
-        
-        # whether this hand has an ace
+        # Whether this hand has an ace
         self.hasAce = False
-        
-    # Add the given card to the hand
+
     def addCard(self, card):
+        """
+        Add the given card to the hand.
+        """
         self.cards.append(card)
         self.count += card.getCount()
         if card.value is Card.ACE_VALUE:
             self.hasAce = True
-        
-    # The count of the hand -- treating first ace as 11 if necessary
+
+    def getCards(self):
+        """
+        Get a list of the cards in this hand.
+        """
+        return self.cards
+
     def getSoftCount(self):
+        """
+        The count of the hand, treating first ace
+        as 11 if necessary.
+        """
         return self.count + (10 if self.hasAce else 0)
-        
-    # The count of the hand -- treating first ace as 1 if necessary
+
     def getHardCount(self):
+        """
+        The count of the hand, treating first ace
+        as 1 if necessary.
+        """
         return self.count
-        
-    # True if the count is always over 21, false otherwise
+
     def isBust(self):
-        return self.getSoftCount() > Hand.HAND_MAX and self.getHardCount() > Hand.HAND_MAX
-    
-    # highest valid count if any, else 0
+        """
+        True if the count is always over 21, false otherwise.
+        """
+        return (self.getSoftCount() > Hand.HAND_MAX and
+                self.getHardCount() > Hand.HAND_MAX)
+
     def getValidCount(self):
+        """
+        Highest valid count, if any, else 0.
+        """
         # Soft count will be higher if it's valid
         if self.getSoftCount() <= Hand.HAND_MAX:
             return self.getSoftCount()
@@ -48,8 +66,42 @@ class Hand:
             return self.getHardCount()
         else:
             return 0
-      
-    # A blackjack is when the total is 21 after just 2 cards  
+
     def isBlackJack(self):
-        return self.getValidCount() is 21 and len(self.cards) is 2
-            
+        """
+        A hand is a blackjack if the total is 21 after just 2 cards.
+        """
+        return self.getValidCount() == 21 and len(self.cards) == 2
+
+    def compare(self, other):
+        """
+        Compare this hand to the given other hand. Returns
+        < 0 if this hand is less than the given hand, > 0
+        if greater, and 0 if they have the same value.
+        """
+        difference = self.getValidCount() - other.getValidCount()
+        if difference != 0:
+            return difference
+        if self.isBlackJack() != other.isBlackJack():
+            return 1 if self.isBlackJack() else -1
+        return 0
+
+    def __eq__(self, other):
+        """
+        Equality of hands is tricky. Currently this is
+        defined as one hand equaling another iff they
+        contain the same cards received in the same order,
+        although it should maybe be order-insensitive.
+        """
+        return self.cards == other.cards
+
+    def __hash__(self):
+        return hash((len(self.cards), self.count, self.hasAce))
+
+    def __str__(self):
+        return "{0} with soft count {1} and hard count {2}{3}".format(
+            self.cards, self.getSoftCount(), self.getHardCount(),
+            " (BlackJack)" if self.isBlackJack() else (
+                " (Bust)" if self.isBust() else ""))
+
+    __repr__ = __str__

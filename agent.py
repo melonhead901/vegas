@@ -40,3 +40,9 @@ class Agent:
         Notify this agent of a win for the purpose
         of record-keeping.
         """
+
+    def tie(self, hand, dealerHand):
+        """
+        Notify this agent of a tie for the purpose
+        of record-keeping.
+        """

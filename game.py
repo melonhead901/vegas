@@ -1,8 +1,10 @@
-
+#!/usr/bin/python
+ 
 from actions import Actions
 from deck import Deck
 from hand import Hand
 from human_agent import HumanAgent
+from dealer_agent import DealerAgent
 
 class Game:
     def __init__(self, dealerAgent, playerAgents):
@@ -89,10 +91,12 @@ class Game:
         # winners and losers.
         for (hand, playerAgent) in self.inactiveHandPlayerMap.items():
             # The dealer wins in the case of ties.
-            if hand.compare(self.dealerHand) <= 0:
+            if hand.isBust() or hand.compare(self.dealerHand) < 0:
                 playerAgent.lose(hand, self.dealerHand)
-            else:
+            elif hand.compare(self.dealerHand) > 0:
                 playerAgent.win(hand, self.dealerHand)
+            else: # hand.compare(self.dealerHand) == 0
+                playerAgent.tie(hand, self.dealerHand)
             # Return the cards in the hand to the deck.
             for card in hand.getCards():
                 self.deck.give(card)
@@ -105,7 +109,7 @@ class Game:
 if __name__ == '__main__':
     # TODO(snowden): Make it possible to specify agents
     # via command-line arguments.
-    dealerAgent = HumanAgent()
+    dealerAgent = DealerAgent()
     playerAgents = [HumanAgent()]
     game = Game(dealerAgent, playerAgents)
     game.executeGame(2)

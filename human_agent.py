@@ -22,14 +22,16 @@ class HumanAgent(Agent):
     def getNextAction(self, hand, handList):
         print "Player {0} has hand {1}".format(
             self.playerIndex, hand)
-        print "Other hands visible: {0}".format(handList)
+        otherHands = [h for h in handList if h is not hand]
+        if otherHands:
+          print "Other hands visible: {0}".format(otherHands)
         while True:
             response = raw_input("What will player {0} do {1}? ".format(
                     self.playerIndex,
                     "(H)it/(S)tand")).lower()
-            if response == "h":
+            if response.lower() == "h":
                 return Actions.HIT
-            elif response == "s":
+            elif response.lower() == "s":
                 return Actions.STAND
 
     def lose(self, hand, dealerHand):
@@ -38,4 +40,8 @@ class HumanAgent(Agent):
 
     def win(self, hand, dealerHand):
         print "Player {0}'s hand of {1} won to the dealer's " \
+            "hand of {2}".format(self.playerIndex, hand, dealerHand)
+
+    def tie(self, hand, dealerHand):
+        print "Player {0}'s hand of {1} tied with the dealer's " \
             "hand of {2}".format(self.playerIndex, hand, dealerHand)

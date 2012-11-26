@@ -6,5 +6,6 @@ class Actions:
     """
     HIT = "Hit"
     STAND = "Stand"
-    SPLIT = "Split"
-    DOUBLE_DOWN = "DoubleDown"
+    # Not yet implemented
+    #SPLIT = "Split"
+    #DOUBLE_DOWN = "DoubleDown"

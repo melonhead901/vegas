@@ -12,6 +12,7 @@ class HumanAgent(Agent):
         HumanAgent.playerCount += 1
 
     def receiveHand(self, hand):
+        self.hand = hand
         print "Player {0} was dealt {1}".format(
             self.playerIndex, hand)
 
@@ -19,14 +20,19 @@ class HumanAgent(Agent):
         print "Player {0} received card {1}".format(
             self.playerIndex, card)
 
-    def getNextAction(self, hand, handList):
+    def getNextAction(self, gameState):
         print "Player {0} has hand {1}".format(
-            self.playerIndex, hand)
-        otherHands = [h for h in handList if h is not hand]
+            self.playerIndex, self.hand)
+        otherHands = [h 
+                      for h 
+                      in gameState.getPlayerHands().values() 
+                      if h is not self.hand]
         if otherHands:
           print "Other hands visible: {0}".format(otherHands)
+        print "Dealer showing: {0}".format(
+            gameState.getDealerHand().getUpCard())
         while True:
-            response = raw_input("What will player {0} do {1}? ".format(
+            response = raw_input("== What will player {0} do {1}? ".format(
                     self.playerIndex,
                     "(H)it/(S)tand")).lower()
             if response.lower() == "h":

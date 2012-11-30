@@ -73,6 +73,12 @@ class Hand:
         """
         return self.getValidCount() == 21 and len(self.cards) == 2
 
+    def getUpCard(self):
+        """
+        The card that would show if this is the dealer's hand
+        """
+        return self.cards[0]
+
     def compare(self, other):
         """
         Compare this hand to the given other hand. Returns

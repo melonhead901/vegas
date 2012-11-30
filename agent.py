@@ -18,10 +18,10 @@ class Agent:
         the hand or the card.
         """
 
-    def getNextAction(self, hand, handList):
+    def getNextAction(self, gameState):
         """
-        Get the next action for the given hand. The
-        provided handList contains all of the hands
+        Get the next action for the given gameState. The
+        provided gameState contains all of the hands
         of players participating in the round. The
         returned action must be one of those defined
         in the Actions class (see actions.py) and must

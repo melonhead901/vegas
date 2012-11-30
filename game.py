@@ -5,6 +5,7 @@ from deck import Deck
 from hand import Hand
 from human_agent import HumanAgent
 from dealer_agent import DealerAgent
+from game_state import GameState
 
 class Game:
     def __init__(self, dealerAgent, playerAgents):
@@ -15,6 +16,10 @@ class Game:
         self.handPlayerMap = {}
         self.inactiveHandPlayerMap = {}
         self.deck = Deck(1, 4, 13)
+        # Initialize GameState
+        self.gameState = GameState()
+        self.gameState.setDeck(self.deck)
+        self.gameState.setPlayerHands(self.handPlayerMap)
 
     def executeGame(self, numRounds):
         for i in range(numRounds):
@@ -25,10 +30,10 @@ class Game:
         self.handPlayerMap = {}
         self.inactiveHandPlayerMap = {}
         self.deck.verifyFull()
-        # Deal a hand to the dealer and to each player.
+
+        # Deal cards to the dealer
         self.dealerHand = Hand()
-        # TODO(snowden): Should one of these cards be
-        # visible to the player agents?
+        self.gameState.setDealerHand(self.dealerHand)
         self.dealerHand.addCard(self.deck.take())
         self.dealerHand.addCard(self.deck.take())
         self.dealerAgent.receiveHand(self.dealerHand)
@@ -46,12 +51,7 @@ class Game:
             # map, so we have to create a new one each iteration.
             newHandPlayerMap = {}
             for (hand, playerAgent) in self.handPlayerMap.items():
-                # TODO(snowden): Build a list that includes hands
-                # updated during previous iterations of this loop.
-                handList = (self.handPlayerMap.keys() +
-                            self.inactiveHandPlayerMap.keys())
-                action = playerAgent.getNextAction(
-                    hand, handList)
+                action = playerAgent.getNextAction(self.gameState)
                 if action == Actions.STAND:
                     # If the action is to stand, remove the hand from
                     # the map of active hands and add it to the map
@@ -75,8 +75,7 @@ class Game:
         while True:
             # The dealer is not permitted to act on the cards
             # that players have been dealt.
-            dealerAction = self.dealerAgent.getNextAction(
-                self.dealerHand, [])
+            dealerAction = self.dealerAgent.getNextAction(self.gameState)
             if dealerAction == Actions.STAND:
                 break
             elif dealerAction == Actions.HIT:

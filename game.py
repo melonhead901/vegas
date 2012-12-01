@@ -133,6 +133,23 @@ class Game:
     def resultString(self):
         playerStrings = ["%s: %u-%u-%u" % (playerAgent, self.wins[playerAgent], self.loses[playerAgent], self.ties[playerAgent]) for playerAgent in self.playerAgents]
         return '\n'.join(playerStrings)
+    
+    
+def printPolicy(agent):
+    str = "sc\t"
+    for i in range(2,12):
+        str += "{0}\t".format(i)
+    print str
+        
+    for playerSoftCount in range(2,21):    
+        str = "{0}\t".format(playerSoftCount)    
+        for dealerSoftCard in range(2,12):
+            # Construct features for this cell
+            feature = ((playerSoftCount, playerSoftCount), dealerSoftCard)
+            # print the action for that feature
+            str += agent.getPolicy(feature)[0] + "\t"
+        print str
+        
 
 if __name__ == '__main__':
     # TODO(snowden): Make it possible to specify agents
@@ -153,3 +170,5 @@ if __name__ == '__main__':
     game.executeGame(100)
     print game.resultString()
     print playerAgents[0].q_values.values()
+    printPolicy(playerAgents[0])
+    

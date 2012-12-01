@@ -6,6 +6,7 @@ from hand import Hand
 from human_agent import HumanAgent
 from dealer_agent import DealerAgent
 from game_state import GameState
+from q_learning_agent import QLearningAgent
 
 class Game:
     def __init__(self, dealerAgent, playerAgents):
@@ -91,11 +92,11 @@ class Game:
         for (hand, playerAgent) in self.inactiveHandPlayerMap.items():
             # The dealer wins in the case of ties.
             if hand.isBust() or hand.compare(self.dealerHand) < 0:
-                playerAgent.lose(hand, self.dealerHand)
+                playerAgent.lose(self.gameState)
             elif hand.compare(self.dealerHand) > 0:
-                playerAgent.win(hand, self.dealerHand)
+                playerAgent.win(self.gameState)
             else: # hand.compare(self.dealerHand) == 0
-                playerAgent.tie(hand, self.dealerHand)
+                playerAgent.tie(self.gameState)
             # Return the cards in the hand to the deck.
             for card in hand.getCards():
                 self.deck.give(card)
@@ -109,6 +110,6 @@ if __name__ == '__main__':
     # TODO(snowden): Make it possible to specify agents
     # via command-line arguments.
     dealerAgent = DealerAgent()
-    playerAgents = [HumanAgent()]
+    playerAgents = [QLearningAgent()]
     game = Game(dealerAgent, playerAgents)
-    game.executeGame(2)
+    game.executeGame(1000)

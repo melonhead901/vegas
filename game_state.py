@@ -14,6 +14,9 @@ class GameState(object):
     def getDealerHand(self):
       return self.dealerHand
 
+    def getDealerUpCard(self):
+      return self.dealerHand.getUpCard()
+
     def setDealerHand(self, hand):
       self.dealerHand = hand
 

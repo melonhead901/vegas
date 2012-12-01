@@ -91,6 +91,9 @@ class Hand:
         if self.isBlackJack() != other.isBlackJack():
             return 1 if self.isBlackJack() else -1
         return 0
+    
+    def hasAce(self):
+        return reduce(lambda x, y: x or y, map(lambda c: c.getValue() is 0, self.cards), False)
 
     def __eq__(self, other):
         """

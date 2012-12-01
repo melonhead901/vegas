@@ -12,6 +12,14 @@ class Game:
     def __init__(self, dealerAgent, playerAgents):
         self.dealerAgent = dealerAgent
         self.playerAgents = playerAgents
+
+        # maps of Agent => int
+        self.loses = {}
+        self.wins = {}
+        self.ties = {}
+        for playerAgent in playerAgents:
+          self.loses[playerAgent] = self.wins[playerAgent] = self.ties[playerAgent] = 0
+
         self.dealerHand = None
         # A map of hands to the players who control them.
         self.handPlayerMap = {}
@@ -24,11 +32,12 @@ class Game:
 
     def executeGame(self, numRounds):
         for i in range(numRounds):
-            print "Round {0}".format(i)
+            # print "Round {0}".format(i)
             self.executeRound()
 
     def executeRound(self):
         self.handPlayerMap = {}
+        self.gameState.setPlayerHands(self.handPlayerMap)
         self.inactiveHandPlayerMap = {}
         self.deck.verifyFull()
 
@@ -93,10 +102,13 @@ class Game:
             result = self.determineWinner(hand, self.dealerHand)
             if result < 0:
                 playerAgent.lose(self.gameState)
+                self.loses[playerAgent] += 1
             elif result > 0:
                 playerAgent.win(self.gameState)
+                self.wins[playerAgent] += 1
             else: # result == 0
                 playerAgent.tie(self.gameState)
+                self.ties[playerAgent] += 1
             # Return the cards in the hand to the deck.
             for card in hand.getCards():
                 self.deck.give(card)
@@ -117,10 +129,23 @@ class Game:
         else:
             return playerHand.compare(dealerHand)
 
+    def resultString(self):
+        playerStrings = ["%s: %u-%u-%u" % (playerAgent, self.wins[playerAgent], self.loses[playerAgent], self.ties[playerAgent]) for playerAgent in self.playerAgents]
+        return '\n'.join(playerStrings)
+
 if __name__ == '__main__':
     # TODO(snowden): Make it possible to specify agents
     # via command-line arguments.
+
+    #train
+    print "Training..."
     dealerAgent = DealerAgent()
     playerAgents = [QLearningAgent()]
     game = Game(dealerAgent, playerAgents)
     game.executeGame(1000)
+
+    # test
+    print "Testing..."
+    game = Game(dealerAgent, playerAgents)
+    game.executeGame(100)
+    print game.resultString()

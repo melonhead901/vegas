@@ -44,7 +44,6 @@ class QLearningAgent(Agent):
         features = (
             tuple(gameState.getPlayerHands().keys()), # can see everyone's hand atm
             gameState.getDealerUpCard())
-    
         return features
   
     def update(self, features, reward):
@@ -81,13 +80,10 @@ class QLearningAgent(Agent):
         self.last_features = None
 
     def lose(self, gameState):
-        print "losed"
         self.gameOver(gameState, -1.0)
 
     def win(self, gameState):
-        print "winned"
         self.gameOver(gameState, 1.0)
 
     def tie(self, gameState):
-        print "tied"
         self.gameOver(gameState, 0.0)

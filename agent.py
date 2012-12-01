@@ -29,19 +29,19 @@ class Agent:
         """
         return NotImplemented
 
-    def lose(self, hand, dealerHand):
+    def lose(self, gameState):
         """
         Notify this agent of a loss for the purpose
         of record-keeping.
         """
 
-    def win(self, hand, dealerHand):
+    def win(self, gameState):
         """
         Notify this agent of a win for the purpose
         of record-keeping.
         """
 
-    def tie(self, hand, dealerHand):
+    def tie(self, gameState):
         """
         Notify this agent of a tie for the purpose
         of record-keeping.

@@ -47,9 +47,6 @@ class Card:
         else:
             return self.getCount()
 
-    def getValue(self):
-      return self.value
-
     def __eq__(self, other):
         return (self.suit, self.value) == (other.suit, other.value)
 

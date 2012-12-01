@@ -6,7 +6,8 @@ from card import Card
 
 class QLearningAgent(Agent):
 
-    def __init__(self, alpha=0.5, discount=1.0, epsilon=0.1):
+    #TODO: discount?
+    def __init__(self, alpha=0.2, discount=0.8, epsilon=0.1):
         self.alpha = alpha
         self.discount = discount
         self.epsilon = epsilon
@@ -26,6 +27,9 @@ class QLearningAgent(Agent):
           return max(map(lambda action: self.getQValue(features, action), actions))
   
     def getPolicy(self, features):
+        if features[0][0][0] <= 11:
+          return Actions.HIT
+
         actions = [Actions.HIT, Actions.STAND]
         if len(actions) == 0:
           return None
@@ -45,14 +49,29 @@ class QLearningAgent(Agent):
         hands = map(lambda hand: (hand.getSoftCount(), hand.getHardCount()), gameState.getPlayerHands().keys())
         features = (
             tuple(hands), # TODO: can see everyone's hand atm - fine w/ just one agent
-            gameState.getDealerUpCard().getValue())
+            gameState.getDealerUpCard().getSoftCount())
         return features
-  
+
     def update(self, features, reward):
+#        if self.last_features == (((20, 20),), 7) and self.last_action == Actions.STAND:
+#          print 'here %f (reward: %f) (last_action: %s) (q_values: %f, %f)' % \
+#              (self.q_values.get((self.last_features, self.last_action), 0.0), \
+#               reward, \
+#               self.last_action,
+#               self.q_values.get((self.last_features, Actions.HIT), 0.0), \
+#               self.q_values.get((self.last_features, Actions.STAND), 0.0))
+
         value = self.getValue(features)
+#        if self.last_features == (((20, 20),), 7) and self.last_action == Actions.STAND:
+#            print '\tvalue %f' % value
         q_value = self.q_values.get((self.last_features, self.last_action), 0.0)
-        self.q_values[(self.last_features, self.last_action)] =\
+#        if self.last_features == (((20, 20),), 7) and self.last_action == Actions.STAND:
+#            print '\tq_value %f' % q_value
+        self.q_values[(self.last_features, self.last_action)] = \
             (1.0 - self.alpha) * q_value + self.alpha * (reward + self.discount * value)
+
+#        if self.last_features == (((20, 20),), 7) and self.last_action == Actions.STAND:
+#            print '\tthere %f' % self.q_values.get((self.last_features, self.last_action), 0.0)
 
     def getNextAction(self, gameState):
         features = self.stateToFeatures(gameState)
@@ -66,7 +85,9 @@ class QLearningAgent(Agent):
         elif random.random() < self.epsilon:
             action = random.choice(actions)
         else:
-            action = self.getPolicy(gameState)
+            action = self.getPolicy(features)
+
+        action = Actions.STAND
 
         self.last_action = action
         self.last_features = features

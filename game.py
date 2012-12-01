@@ -141,14 +141,25 @@ def printPolicy(agent):
         str += "{0}\t".format(i)
     print str
         
-    for playerSoftCount in range(2,21):    
+    for playerSoftCount in range(20,1,-1):    
         str = "{0}\t".format(playerSoftCount)    
         for dealerSoftCard in range(2,12):
             # Construct features for this cell
-            feature = ((playerSoftCount, playerSoftCount), dealerSoftCard)
+            feature = (((playerSoftCount, playerSoftCount),), dealerSoftCard)
             # print the action for that feature
-            str += agent.getPolicy(feature)[0] + "\t"
-        print str
+            for action in [Actions.STAND]:
+              key = (feature, action)
+              action = agent.getPolicy(feature)[0]
+              if action == 'S':
+                  color = "\033[31m"
+              else:
+                  color = "\033[32m"
+              str += '{0}{1}\t'.format(color, action)
+#              if key in agent.q_values:
+#                  str += "%0.2f\t" % agent.q_values[key]
+#              else:
+#                  str += '\t' 
+        print str + "\033[1;37m"
         
 
 if __name__ == '__main__':
@@ -158,17 +169,17 @@ if __name__ == '__main__':
     dealerAgent = DealerAgent()
 
     playerAgents = [QLearningAgent()]
+    #playerAgents = [ReflexAgent()]
 
     print "Training..."
     game = Game(dealerAgent, playerAgents)
     game.executeGame(10000)
 
     playerAgents[0].epsilon = 0.0
+    playerAgents[0].alpha = 0.0
 
     print "Testing..."
     game = Game(dealerAgent, playerAgents)
-    game.executeGame(100)
+    game.executeGame(1000)
     print game.resultString()
-    print playerAgents[0].q_values.values()
     printPolicy(playerAgents[0])
-    

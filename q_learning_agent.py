@@ -87,8 +87,6 @@ class QLearningAgent(Agent):
         else:
             action = self.getPolicy(features)
 
-        action = Actions.STAND
-
         self.last_action = action
         self.last_features = features
 

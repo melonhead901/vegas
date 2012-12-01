@@ -44,16 +44,15 @@ class QLearningAgent(Agent):
     def stateToFeatures(self, gameState):
         hands = map(lambda hand: (hand.getSoftCount(), hand.getHardCount()), gameState.getPlayerHands().keys())
         features = (
-            tuple(hands), # TODO: can see everyone's hand atm
+            tuple(hands), # TODO: can see everyone's hand atm - fine w/ just one agent
             gameState.getDealerUpCard().getValue())
         return features
   
     def update(self, features, reward):
         value = self.getValue(features)
         q_value = self.q_values.get((self.last_features, self.last_action), 0.0)
-        self.q_values[(self.last_features, self.last_action)] = (1.0 - self.alpha) * q_value
-        self.q_values[(self.last_features, self.last_action)] += self.alpha * (reward + self.discount * value)
-      
+        self.q_values[(self.last_features, self.last_action)] =\
+            (1.0 - self.alpha) * q_value + self.alpha * (reward + self.discount * value)
 
     def getNextAction(self, gameState):
         features = self.stateToFeatures(gameState)

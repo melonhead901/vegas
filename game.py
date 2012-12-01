@@ -7,6 +7,7 @@ from human_agent import HumanAgent
 from dealer_agent import DealerAgent
 from game_state import GameState
 from q_learning_agent import QLearningAgent
+from reflex_agent import ReflexAgent
 
 class Game:
     def __init__(self, dealerAgent, playerAgents):
@@ -138,6 +139,7 @@ if __name__ == '__main__':
     # via command-line arguments.
 
     dealerAgent = DealerAgent()
+
     playerAgents = [QLearningAgent()]
 
     print "Training..."

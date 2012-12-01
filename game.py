@@ -89,12 +89,12 @@ class Game:
         # the dealer's hands with those of the players to determine
         # winners and losers.
         for (hand, playerAgent) in self.inactiveHandPlayerMap.items():
-            # The dealer wins in the case of ties.
-            if hand.isBust() or hand.compare(self.dealerHand) < 0:
+            result = self.determineWinner(hand, self.dealerHand)
+            if result < 0:
                 playerAgent.lose(hand, self.dealerHand)
-            elif hand.compare(self.dealerHand) > 0:
+            elif result > 0:
                 playerAgent.win(hand, self.dealerHand)
-            else: # hand.compare(self.dealerHand) == 0
+            else: # result == 0
                 playerAgent.tie(hand, self.dealerHand)
             # Return the cards in the hand to the deck.
             for card in hand.getCards():
@@ -104,6 +104,17 @@ class Game:
             self.deck.give(card)
         # The deck should have all of the cards back.
         self.deck.verifyFull()
+        
+    # Returns less than 0 if the player loses, greater than 0 if he wins, and 0 for a push
+    def determineWinner(self, playerHand, dealerHand):
+        # Player loses if both player and dealer bust
+        if playerHand.isBust():
+            return -1
+        # Player wins if both get black jack
+        elif playerHand.isBlackJack():
+            return 1
+        else:
+            return playerHand.compare(dealerHand)
 
 if __name__ == '__main__':
     # TODO(snowden): Make it possible to specify agents

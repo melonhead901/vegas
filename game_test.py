@@ -9,6 +9,10 @@ from game import Game
 from hand import Hand
 from card import Card
 
+"""
+Test the win/lose game logic.
+TODO(kellend): Test game using its public interface.
+"""
 class GameLogicTest(unittest.TestCase):
     
     def setUp(self):

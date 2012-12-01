@@ -92,9 +92,6 @@ class Hand:
             return 1 if self.isBlackJack() else -1
         return 0
     
-    def hasAce(self):
-        return reduce(lambda x, y: x or y, map(lambda c: c.getValue() is 0, self.cards), False)
-
     def __eq__(self, other):
         """
         Equality of hands is tricky. Currently this is
@@ -103,6 +100,9 @@ class Hand:
         although it should maybe be order-insensitive.
         """
         return self.cards == other.cards
+
+    def getHasAce(self):
+        return self.hasAce
 
     def __hash__(self):
         return hash((len(self.cards), self.count, self.hasAce))

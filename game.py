@@ -137,15 +137,17 @@ if __name__ == '__main__':
     # TODO(snowden): Make it possible to specify agents
     # via command-line arguments.
 
-    #train
-    print "Training..."
     dealerAgent = DealerAgent()
     playerAgents = [QLearningAgent()]
-    game = Game(dealerAgent, playerAgents)
-    game.executeGame(1000)
 
-    # test
+    print "Training..."
+    game = Game(dealerAgent, playerAgents)
+    game.executeGame(10000)
+
+    playerAgents[0].epsilon = 0.0
+
     print "Testing..."
     game = Game(dealerAgent, playerAgents)
     game.executeGame(100)
     print game.resultString()
+    print playerAgents[0].q_values.values()

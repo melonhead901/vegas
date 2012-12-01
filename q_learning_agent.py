@@ -2,6 +2,7 @@ import random
 
 from actions import Actions
 from agent import Agent
+from card import Card
 
 class QLearningAgent(Agent):
 
@@ -15,7 +16,7 @@ class QLearningAgent(Agent):
         self.last_features = None
   
     def getQValue(self, features, action):
-        return self.q_values.get((features, action), 0)
+        return self.q_values.get((features, action), 0.0)
   
     def getValue(self, features):
         actions = [Actions.HIT, Actions.STAND]
@@ -41,14 +42,15 @@ class QLearningAgent(Agent):
           return random.choice(best_actions)
   
     def stateToFeatures(self, gameState):
+        hands = map(lambda hand: (hand.getSoftCount(), hand.getHardCount()), gameState.getPlayerHands().keys())
         features = (
-            tuple(gameState.getPlayerHands().keys()), # can see everyone's hand atm
-            gameState.getDealerUpCard())
+            tuple(hands), # TODO: can see everyone's hand atm
+            gameState.getDealerUpCard().getValue())
         return features
   
     def update(self, features, reward):
         value = self.getValue(features)
-        q_value = self.q_values.get((self.last_features, self.last_action), 0)
+        q_value = self.q_values.get((self.last_features, self.last_action), 0.0)
         self.q_values[(self.last_features, self.last_action)] = (1.0 - self.alpha) * q_value
         self.q_values[(self.last_features, self.last_action)] += self.alpha * (reward + self.discount * value)
       
@@ -61,16 +63,16 @@ class QLearningAgent(Agent):
         actions = [Actions.HIT, Actions.STAND]
         
         if len(actions) == 0:
-            result = None
+            action = None
         elif random.random() < self.epsilon:
-            result = random.choice(actions)
+            action = random.choice(actions)
         else:
-            result = self.getPolicy(gameState)
+            action = self.getPolicy(gameState)
 
-        self.last_action = result
+        self.last_action = action
         self.last_features = features
 
-        return result
+        return action
 
     def gameOver(self, gameState, reward):
         features = self.stateToFeatures(gameState)

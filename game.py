@@ -8,6 +8,7 @@ from dealer_agent import DealerAgent
 from game_state import GameState
 from q_learning_agent import QLearningAgent
 from reflex_agent import ReflexAgent
+from standing_agent import StandingAgent
 
 class Game:
     def __init__(self, dealerAgent, playerAgents):
@@ -168,8 +169,9 @@ if __name__ == '__main__':
 
     dealerAgent = DealerAgent()
 
-    playerAgents = [QLearningAgent()]
-    #playerAgents = [ReflexAgent()]
+    #playerAgents = [QLearningAgent()]
+    playerAgents = [ReflexAgent()]
+    #playerAgents = [StandingAgent()]
 
     print "Training..."
     game = Game(dealerAgent, playerAgents)
@@ -182,4 +184,4 @@ if __name__ == '__main__':
     game = Game(dealerAgent, playerAgents)
     game.executeGame(1000)
     print game.resultString()
-    printPolicy(playerAgents[0])
+    #printPolicy(playerAgents[0])

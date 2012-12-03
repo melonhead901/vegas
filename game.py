@@ -1,4 +1,7 @@
 #!/usr/bin/python
+
+import argparse
+import sys
  
 from actions import Actions
 from deck import Deck
@@ -19,14 +22,10 @@ class Game:
         self.losses = {}
         self.wins = {}
         self.ties = {}
+        self.balances = {}
         for playerAgent in playerAgents:
-          self.losses[playerAgent] = self.wins[playerAgent] = self.ties[playerAgent] = 0
-
-        self.dealerHand = None
-        # A map of hands to the players who control them.
-        self.handPlayerMap = {}
-        self.inactiveHandPlayerMap = {}
-        self.deck = Deck(1, 4, 13)
+          self.losses[playerAgent] = self.wins[playerAgent] = \
+              self.ties[playerAgent] = self.balances[playerAgent] = 0
 
     def executeGame(self, numRounds):
         for i in range(numRounds):
@@ -34,60 +33,61 @@ class Game:
             self.executeRound()
 
     def executeRound(self):
-        self.handPlayerMap = {}
-        self.inactiveHandPlayerMap = {}
-        self.deck.verifyFull()
+        # A map of hands to the players who control them.
+        handPlayerMap = {}
+        inactiveHandPlayerMap = {}
+        deck = Deck(1, 4, 13)
 
         # Deal cards to the dealer. The dealer has a bet of 0.
-        self.dealerHand = Hand(0)
-        self.dealerHand.addCard(self.deck.take())
-        self.dealerHand.addCard(self.deck.take())
+        dealerHand = Hand(0)
+        dealerHand.addCard(deck.take())
+        dealerHand.addCard(deck.take())
         for playerAgent in self.playerAgents:
             # TODO(snowden): Allow players to choose how much
             # they bet each time.
             playerHand = Hand(1)
-            playerHand.addCard(self.deck.take())
-            playerHand.addCard(self.deck.take())
-            self.handPlayerMap[playerHand] = playerAgent
+            playerHand.addCard(deck.take())
+            playerHand.addCard(deck.take())
+            handPlayerMap[playerHand] = playerAgent
 
         # While there are still hands in play, ask the
         # agent controlling the hand for the next action.
-        while self.handPlayerMap:
+        while handPlayerMap:
             # It isn't possible to modify the keys of the existing
             # map, so we have to create a new one each iteration.
             newHandPlayerMap = {}
-            remainingHandPlayerMap = self.handPlayerMap
-            for (hand, playerAgent) in self.handPlayerMap.items():
+            remainingHandPlayerMap = handPlayerMap
+            for (hand, playerAgent) in handPlayerMap.items():
                 currentHandPlayerMap = dict(newHandPlayerMap.items() +
                                             remainingHandPlayerMap.items())
                 del remainingHandPlayerMap[hand]
                 action = playerAgent.getNextAction(
                     GameState(currentHandPlayerMap,
-                              self.dealerHand, self.deck), hand)
+                              dealerHand, deck), hand)
                 if action == Actions.HIT:
-                    hand.hit(self.deck)
+                    hand.hit(deck)
                     if hand.isBust():
-                        self.inactiveHandPlayerMap[hand] = playerAgent
+                        inactiveHandPlayerMap[hand] = playerAgent
                     else:
                         newHandPlayerMap[hand] = playerAgent
                 elif action == Actions.STAND:
-                    hand.stand(self.deck)
+                    hand.stand(deck)
                     # If the action is to stand, remove the hand from
                     # the map of active hands and add it to the map
                     # of inactive hands.
-                    self.inactiveHandPlayerMap[hand] = playerAgent
+                    inactiveHandPlayerMap[hand] = playerAgent
                 elif action == Actions.SPLIT:
-                    splitHands = hand.split(self.deck)
+                    splitHands = hand.split(deck)
                     newHandPlayerMap[splitHands[0]] = playerAgent
                     newHandPlayerMap[splitHands[1]] = playerAgent
                 elif action == Actions.DOUBLE_DOWN:
-                    hand.doubleDown(self.deck)
+                    hand.doubleDown(deck)
                     # After doubling down, the player may take no
                     # further actions.
-                    self.inactiveHandPlayerMap[hand] = playerAgent
+                    inactiveHandPlayerMap[hand] = playerAgent
                 else:
                     raise ValueError("Not yet implemented.")
-            self.handPlayerMap = newHandPlayerMap
+            handPlayerMap = newHandPlayerMap
 
         # All agents have either indicated that they want to
         # stand or else have busted, so it is the dealer's
@@ -96,37 +96,39 @@ class Game:
             # The dealer is not permitted to act on the cards
             # that players have been dealt and can only hit
             # or stand with each card received.
-            dealerAction = self.dealerAgent.getNextAction(None, self.dealerHand)
+            dealerAction = self.dealerAgent.getNextAction(None, dealerHand)
             if dealerAction == Actions.STAND:
                 break
             elif dealerAction == Actions.HIT:
-                self.dealerHand.hit(self.deck)
-                if self.dealerHand.isBust():
+                dealerHand.hit(deck)
+                if dealerHand.isBust():
                     break
 
         # The dealer has finished executing its actions. Compare
         # the dealer's hands with those of the players to determine
         # winners and losers.
-        endingState = GameState(self.handPlayerMap, self.dealerHand, self.deck)
-        for (hand, playerAgent) in self.inactiveHandPlayerMap.items():
-            result = self.determineWinner(hand, self.dealerHand)
+        endingState = GameState(handPlayerMap, dealerHand, deck)
+        for (hand, playerAgent) in inactiveHandPlayerMap.items():
+            result = self.determineWinner(hand, dealerHand)
             if result < 0:
                 playerAgent.lose(endingState, hand)
                 self.losses[playerAgent] += 1
+                self.balances[playerAgent] -= hand.getBet()
             elif result > 0:
                 playerAgent.win(endingState, hand)
                 self.wins[playerAgent] += 1
+                self.balances[playerAgent] += hand.getBet()
             else: # result == 0
                 playerAgent.tie(endingState, hand)
                 self.ties[playerAgent] += 1
             # Return the cards in the hand to the deck.
             for card in hand.getCards():
-                self.deck.give(card)
+                deck.give(card)
         # Return the dealer's cards to the deck.
-        for card in self.dealerHand.getCards():
-            self.deck.give(card)
+        for card in dealerHand.getCards():
+            deck.give(card)
         # The deck should have all of the cards back.
-        self.deck.verifyFull()
+        deck.verifyFull()
         
     # Returns less than 0 if the player loses, greater than 0 if he wins, and 0 for a push
     def determineWinner(self, playerHand, dealerHand):
@@ -141,9 +143,9 @@ class Game:
 
     def resultString(self):
         playerStrings = [
-            "%s: %u-%u-%u" % (playerAgent, self.wins[playerAgent],
-                              self.losses[playerAgent],
-                              self.ties[playerAgent]) for playerAgent in self.playerAgents]
+            "{0}: {1}-{2}-{3}. Ending balance: {4}".format(
+                playerAgent, self.wins[playerAgent], self.losses[playerAgent],
+                self.ties[playerAgent], self.balances[playerAgent]) for playerAgent in self.playerAgents]
         return '\n'.join(playerStrings)
     
     
@@ -175,25 +177,45 @@ def printPolicy(agent):
         
 
 if __name__ == '__main__':
-    # TODO(snowden): Make it possible to specify agents
-    # via command-line arguments.
+    parser = argparse.ArgumentParser(description="Play some games of Blackjack.")
+    parser.add_argument("-t", "--trainingRounds", type=int, help="The number of training rounds to run.")
+    parser.add_argument("-r", "--realRounds", type=int, help="The number of real rounds to run.")
+    parser.add_argument("-p", "--playerAgents", type=str, nargs="+", help="A list of player agents to use")
+
+    args = parser.parse_args()
+    trainingRounds = args.trainingRounds
+    realRounds = args.realRounds
+    if realRounds <= 0:
+        print "Number of real rounds must be > 0 but was {0}".format(realRounds)
+        sys.exit(1)
+    playerAgentStrings = args.playerAgents
+
+    playerAgents = []
+    for playerAgentString in playerAgentStrings:
+        if playerAgentString == "QLearningAgent":
+            playerAgents.append(QLearningAgent())
+        elif playerAgentString == "ReflexAgent":
+            playerAgents.append(ReflexAgent())
+        elif playerAgentString == "StandingAgent":
+            playerAgents.append(StandingAgent())
+        elif playerAgentString == "HumanAgent":
+            playerAgents.append(HumanAgent())
+        else:
+            print "Unrecognized agent {0}".format(playerAgentString)
+            sys.exit(1)
 
     dealerAgent = DealerAgent()
 
-    playerAgents = [QLearningAgent()]
-    #playerAgents = [ReflexAgent()]
-    #playerAgents = [StandingAgent()]
-    #playerAgents = [HumanAgent()]
-
-    print "Training..."
-    game = Game(dealerAgent, playerAgents)
-    game.executeGame(10000)
+    if trainingRounds > 0:
+        print "Training ({0} rounds)...".format(trainingRounds)
+        game = Game(dealerAgent, playerAgents)
+        game.executeGame(trainingRounds)
 
     playerAgents[0].epsilon = 0.0
     playerAgents[0].alpha = 0.0
 
-    print "Testing..."
+    print "Testing ({0} rounds)...".format(realRounds)
     game = Game(dealerAgent, playerAgents)
-    game.executeGame(1000)
+    game.executeGame(realRounds)
     print game.resultString()
     #printPolicy(playerAgents[0])

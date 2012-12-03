@@ -9,12 +9,12 @@ Sometimes the delaer must hit on soft 17. To make this change in the
 code change the check to be ... softCount() <= 17 instead of < 17.
 """
 class DealerAgent(Agent):
-    def receiveHand(self, hand):
-      self.hand = hand
-
-    def getNextAction(self, _):
-      if ((self.hand.getSoftCount() > 21 and self.hand.getHardCount() < 17)
-          or self.hand.getSoftCount() < 17):
+    def getNextAction(self, _, hand):
+      if ((hand.getSoftCount() > 21 and hand.getHardCount() < 17)
+          or hand.getSoftCount() < 17):
         return Actions.HIT
       else:
         return Actions.STAND
+
+    def __str__(self):
+        return "Dealer agent"

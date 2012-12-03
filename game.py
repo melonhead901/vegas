@@ -16,21 +16,17 @@ class Game:
         self.playerAgents = playerAgents
 
         # maps of Agent => int
-        self.loses = {}
+        self.losses = {}
         self.wins = {}
         self.ties = {}
         for playerAgent in playerAgents:
-          self.loses[playerAgent] = self.wins[playerAgent] = self.ties[playerAgent] = 0
+          self.losses[playerAgent] = self.wins[playerAgent] = self.ties[playerAgent] = 0
 
         self.dealerHand = None
         # A map of hands to the players who control them.
         self.handPlayerMap = {}
         self.inactiveHandPlayerMap = {}
         self.deck = Deck(1, 4, 13)
-        # Initialize GameState
-        self.gameState = GameState()
-        self.gameState.setDeck(self.deck)
-        self.gameState.setPlayerHands(self.handPlayerMap)
 
     def executeGame(self, numRounds):
         for i in range(numRounds):
@@ -39,21 +35,19 @@ class Game:
 
     def executeRound(self):
         self.handPlayerMap = {}
-        self.gameState.setPlayerHands(self.handPlayerMap)
         self.inactiveHandPlayerMap = {}
         self.deck.verifyFull()
 
-        # Deal cards to the dealer
-        self.dealerHand = Hand()
-        self.gameState.setDealerHand(self.dealerHand)
+        # Deal cards to the dealer. The dealer has a bet of 0.
+        self.dealerHand = Hand(0)
         self.dealerHand.addCard(self.deck.take())
         self.dealerHand.addCard(self.deck.take())
-        self.dealerAgent.receiveHand(self.dealerHand)
         for playerAgent in self.playerAgents:
-            playerHand = Hand()
+            # TODO(snowden): Allow players to choose how much
+            # they bet each time.
+            playerHand = Hand(1)
             playerHand.addCard(self.deck.take())
             playerHand.addCard(self.deck.take())
-            playerAgent.receiveHand(playerHand)
             self.handPlayerMap[playerHand] = playerAgent
 
         # While there are still hands in play, ask the
@@ -62,21 +56,35 @@ class Game:
             # It isn't possible to modify the keys of the existing
             # map, so we have to create a new one each iteration.
             newHandPlayerMap = {}
+            remainingHandPlayerMap = self.handPlayerMap
             for (hand, playerAgent) in self.handPlayerMap.items():
-                action = playerAgent.getNextAction(self.gameState)
-                if action == Actions.STAND:
-                    # If the action is to stand, remove the hand from
-                    # the map of active hands and add it to the map
-                    # of inactive hands.
-                    self.inactiveHandPlayerMap[hand] = playerAgent
-                elif action == Actions.HIT:
-                    card = self.deck.take()
-                    hand.addCard(card)
-                    playerAgent.receiveCard(hand, card)
+                currentHandPlayerMap = dict(newHandPlayerMap.items() +
+                                            remainingHandPlayerMap.items())
+                del remainingHandPlayerMap[hand]
+                action = playerAgent.getNextAction(
+                    GameState(currentHandPlayerMap,
+                              self.dealerHand, self.deck), hand)
+                if action == Actions.HIT:
+                    hand.hit(self.deck)
                     if hand.isBust():
                         self.inactiveHandPlayerMap[hand] = playerAgent
                     else:
                         newHandPlayerMap[hand] = playerAgent
+                elif action == Actions.STAND:
+                    hand.stand(self.deck)
+                    # If the action is to stand, remove the hand from
+                    # the map of active hands and add it to the map
+                    # of inactive hands.
+                    self.inactiveHandPlayerMap[hand] = playerAgent
+                elif action == Actions.SPLIT:
+                    splitHands = hand.split(self.deck)
+                    newHandPlayerMap[splitHands[0]] = playerAgent
+                    newHandPlayerMap[splitHands[1]] = playerAgent
+                elif action == Actions.DOUBLE_DOWN:
+                    hand.doubleDown(self.deck)
+                    # After doubling down, the player may take no
+                    # further actions.
+                    self.inactiveHandPlayerMap[hand] = playerAgent
                 else:
                     raise ValueError("Not yet implemented.")
             self.handPlayerMap = newHandPlayerMap
@@ -86,30 +94,30 @@ class Game:
         # turn to act.
         while True:
             # The dealer is not permitted to act on the cards
-            # that players have been dealt.
-            dealerAction = self.dealerAgent.getNextAction(self.gameState)
+            # that players have been dealt and can only hit
+            # or stand with each card received.
+            dealerAction = self.dealerAgent.getNextAction(None, self.dealerHand)
             if dealerAction == Actions.STAND:
                 break
             elif dealerAction == Actions.HIT:
-                card = self.deck.take()
-                self.dealerHand.addCard(card)
-                self.dealerAgent.receiveCard(self.dealerHand, card)
+                self.dealerHand.hit(self.deck)
                 if self.dealerHand.isBust():
                     break
 
         # The dealer has finished executing its actions. Compare
         # the dealer's hands with those of the players to determine
         # winners and losers.
+        endingState = GameState(self.handPlayerMap, self.dealerHand, self.deck)
         for (hand, playerAgent) in self.inactiveHandPlayerMap.items():
             result = self.determineWinner(hand, self.dealerHand)
             if result < 0:
-                playerAgent.lose(self.gameState)
-                self.loses[playerAgent] += 1
+                playerAgent.lose(endingState, hand)
+                self.losses[playerAgent] += 1
             elif result > 0:
-                playerAgent.win(self.gameState)
+                playerAgent.win(endingState, hand)
                 self.wins[playerAgent] += 1
             else: # result == 0
-                playerAgent.tie(self.gameState)
+                playerAgent.tie(endingState, hand)
                 self.ties[playerAgent] += 1
             # Return the cards in the hand to the deck.
             for card in hand.getCards():
@@ -132,7 +140,10 @@ class Game:
             return playerHand.compare(dealerHand)
 
     def resultString(self):
-        playerStrings = ["%s: %u-%u-%u" % (playerAgent, self.wins[playerAgent], self.loses[playerAgent], self.ties[playerAgent]) for playerAgent in self.playerAgents]
+        playerStrings = [
+            "%s: %u-%u-%u" % (playerAgent, self.wins[playerAgent],
+                              self.losses[playerAgent],
+                              self.ties[playerAgent]) for playerAgent in self.playerAgents]
         return '\n'.join(playerStrings)
     
     
@@ -169,9 +180,10 @@ if __name__ == '__main__':
 
     dealerAgent = DealerAgent()
 
-    #playerAgents = [QLearningAgent()]
-    playerAgents = [ReflexAgent()]
+    playerAgents = [QLearningAgent()]
+    #playerAgents = [ReflexAgent()]
     #playerAgents = [StandingAgent()]
+    #playerAgents = [HumanAgent()]
 
     print "Training..."
     game = Game(dealerAgent, playerAgents)

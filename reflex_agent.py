@@ -13,19 +13,16 @@ http://en.wikipedia.org/wiki/Blackjack#Blackjack_strategy
 TODO(kellend): Expand when we add in Split, Double, etc.
 """
 class ReflexAgent(Agent):
-        def receiveHand(self, hand):
-            self.hand = hand
-            
-        def getNextAction(self, gameState):
-            if self.hand.getHasAce():
-                return self.useAceTable(gameState)
+        def getNextAction(self, gameState, hand):
+            if hand.getHasAce():
+                return self.useAceTable(gameState, hand)
             else:
-                return self.useNoAceTable(gameState)
+                return self.useNoAceTable(gameState, hand)
             
-        def useAceTable(self, gameState):
-            if self.hand.getSoftCount() >= 19:
+        def useAceTable(self, gameState, hand):
+            if hand.getSoftCount() >= 19:
                 return Actions.STAND
-            elif self.hand.getSoftCount() == 18:
+            elif hand.getSoftCount() == 18:
                 if gameState.getDealerHand().getUpCard().getSoftCount() >= 9:
                     return Actions.HIT
                 else:
@@ -33,20 +30,22 @@ class ReflexAgent(Agent):
             else:
                 return Actions.HIT
             
-        def useNoAceTable(self, gameState):
+        def useNoAceTable(self, gameState, hand):
             dealerVal = gameState.getDealerHand().getUpCard().getSoftCount()
-            if self.hand.getValidCount() >= 17:
+            if hand.getValidCount() >= 17:
                 return Actions.STAND
-            elif self.hand.getValidCount() >= 13:
+            elif hand.getValidCount() >= 13:
                 if dealerVal >= 7:
                     return Actions.HIT
                 else:
                     return Actions.STAND
-            elif self.hand.getValidCount() == 12:
+            elif hand.getValidCount() == 12:
                 if dealerVal >= 7 or dealerVal <= 3:
                     return Actions.HIT
                 else:
                     return Actions.STAND
             else:
                 return Actions.HIT
-            
+
+        def __str__(self):
+            return "Reflex agent"

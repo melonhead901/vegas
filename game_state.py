@@ -5,11 +5,13 @@ Created on Nov 30, 2012
 '''
 
 class GameState(object):
+    def __init__(self, playerHands, dealerHand, deck):
+        self.playerHands = playerHands
+        self.dealerHand = dealerHand
+        self.deck = deck
+
     def getPlayerHands(self):
       return self.playerHands
-
-    def setPlayerHands(self, hands):
-      self.playerHands = hands
 
     def getDealerHand(self):
       return self.dealerHand
@@ -17,11 +19,5 @@ class GameState(object):
     def getDealerUpCard(self):
       return self.dealerHand.getUpCard()
 
-    def setDealerHand(self, hand):
-      self.dealerHand = hand
-
     def getDeck(self):
       return self.deck
-
-    def setDeck(self, deck):
-      self.deck = deck

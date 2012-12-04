@@ -10,7 +10,6 @@ from agent import Agent
 """
 Pretty intelligent agent build from tables on Wikipedia
 http://en.wikipedia.org/wiki/Blackjack#Blackjack_strategy
-TODO(kellend): Expand when we add in Split, Double, etc.
 """
 class ReflexAgent(Agent):
     def getNextAction(self, gameState, hand):

@@ -12,6 +12,7 @@ from game_state import GameState
 from q_learning_agent import QLearningAgent
 from reflex_agent import ReflexAgent
 from standing_agent import StandingAgent
+from card import Card
 
 class Game:
     def __init__(self, dealerAgent, playerAgents):
@@ -117,7 +118,7 @@ class Game:
             elif result > 0:
                 playerAgent.win(endingState, hand)
                 self.wins[playerAgent] += 1
-                self.balances[playerAgent] += hand.getBet()
+                self.balances[playerAgent] += hand.getBet() * 1.5 if hand.isBlackJack() else 1
             else: # result == 0
                 playerAgent.tie(endingState, hand)
                 self.ties[playerAgent] += 1
@@ -148,12 +149,18 @@ class Game:
                 self.ties[playerAgent], self.balances[playerAgent]) for playerAgent in self.playerAgents]
         return '\n'.join(playerStrings)
     
-    
-def printPolicy(agent):
-    str = "sc\t"
+# Print the name of the policy set and the header dealer cards
+def printPolicyHeader(name):
+    s = name + "\t"
     for i in range(2,12):
-        str += "{0}\t".format(i)
-    print str
+        s += "{0}\t".format(i)
+    print s
+
+# Print the normal hand totals (no pairs/aces)
+def printNoAcePairPolicy(agent):
+    printPolicyHeader("sc")
+    dummyHand = Hand(1)
+    dummyHand.getPossibleActions = lambda: [Actions.HIT, Actions.STAND, Actions.DOUBLE_DOWN]
         
     for playerSoftCount in range(20,1,-1):    
         str = "{0}\t".format(playerSoftCount)    
@@ -163,9 +170,39 @@ def printPolicy(agent):
             # print the action for that feature
             for action in [Actions.STAND]:
               key = (feature, action)
-              action = agent.getPolicy(feature)[0]
+              action = agent.getPolicy(feature, dummyHand)[0]
               if action == 'S':
                   color = "\033[31m"
+              elif action == 'D':
+                  color = "\033[34m"
+              else:
+                  color = "\033[32m"
+              str += '{0}{1}\t'.format(color, action)
+#              if key in agent.q_values:
+#                  str += "%0.2f\t" % agent.q_values[key]
+#              else:
+#                  str += '\t' 
+        print str + "\033[1;37m"     
+  
+def printAcePolicy(agent):
+    printPolicyHeader("aces")
+    for nonAceCard in range(10,1,-1):    
+        str = "{0}\t".format(nonAceCard)    
+        for dealerSoftCard in range(2,12):
+            
+            dummyHand = Hand(1)
+            dummyHand.addCard(Card(1, 0))
+            dummyHand.addCard(Card(1, nonAceCard-1))
+            # Construct features for this cell
+            feature = (((nonAceCard+1, nonAceCard+11),), dealerSoftCard)
+            # print the action for that feature
+            for action in [Actions.STAND]:
+              key = (feature, action)
+              action = agent.getPolicy(feature, dummyHand)[0]
+              if action == 'S':
+                  color = "\033[31m"
+              elif action == 'D':
+                  color = "\033[34m"
               else:
                   color = "\033[32m"
               str += '{0}{1}\t'.format(color, action)
@@ -174,6 +211,11 @@ def printPolicy(agent):
 #              else:
 #                  str += '\t' 
         print str + "\033[1;37m"
+    
+def printPolicy(agent):
+    printNoAcePairPolicy(agent)
+    printAcePolicy
+      
         
 
 if __name__ == '__main__':
@@ -218,4 +260,4 @@ if __name__ == '__main__':
     game = Game(dealerAgent, playerAgents)
     game.executeGame(realRounds)
     print game.resultString()
-    #printPolicy(playerAgents[0])
+    printPolicy(playerAgents[1])

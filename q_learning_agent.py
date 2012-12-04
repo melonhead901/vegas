@@ -1,17 +1,15 @@
 import random
-
 from actions import Actions
 from agent import Agent
-from card import Card
 
 class QLearningAgent(Agent):
 
-    #TODO: discount?
+    # TODO: discount?
     def __init__(self, alpha=0.2, discount=0.8, epsilon=0.1):
         self.alpha = alpha
         self.discount = discount
         self.epsilon = epsilon
-    
+
         self.q_values = {}
         self.last_action = None
         self.last_features = None
@@ -27,7 +25,8 @@ class QLearningAgent(Agent):
           return max(map(lambda action: self.getQValue(features, action), actions))
   
     def getPolicy(self, features, hand):
-        if features[0][0][0] <= 11:
+        # Cheating
+        if features[0][0][0] <= 8:
           return Actions.HIT
 
         actions = hand.getPossibleActions()
@@ -48,7 +47,7 @@ class QLearningAgent(Agent):
     def stateToFeatures(self, gameState):
         hands = map(lambda hand: (hand.getSoftCount(), hand.getHardCount()), gameState.getPlayerHands().keys())
         features = (
-            tuple(hands), # TODO: can see everyone's hand atm - fine w/ just one agent
+            tuple(hands),  # TODO: can see everyone's hand atm - fine w/ just one agent
             gameState.getDealerUpCard().getSoftCount())
         return features
 

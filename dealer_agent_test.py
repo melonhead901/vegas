@@ -14,23 +14,21 @@ class DealerAgentTest(unittest.TestCase):
 
     # Hand where the dealer should hit based on hard count
     def test_4CardHand(self):
-        hand = Hand()
+        hand = Hand(0)
         hand.addCard(Card(1, 6))
         hand.addCard(Card(1, 4))
         hand.addCard(Card(1, 2))
         hand.addCard(Card(1, 0))
         dealer = DealerAgent()
-        dealer.receiveHand(hand)
-        self.assertEqual(Actions.HIT, dealer.getNextAction(None))
+        self.assertEqual(Actions.HIT, dealer.getNextAction(None, hand))
 
     # Hand where the dealer should stand based on soft count
     def test_Soft17(self):
-        hand = Hand()
+        hand = Hand(0)
         hand.addCard(Card(1, 6))
         hand.addCard(Card(1, 0))
         dealer = DealerAgent()
-        dealer.receiveHand(hand)
-        self.assertEqual(Actions.STAND, dealer.getNextAction(None))
+        self.assertEqual(Actions.STAND, dealer.getNextAction(None, hand))
 
 
 if __name__ == "__main__":

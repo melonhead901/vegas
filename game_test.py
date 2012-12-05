@@ -17,10 +17,10 @@ class GameLogicTest(unittest.TestCase):
     
     def setUp(self):
         dealerAgent = None
-        playerAgents = None
+        playerAgents = []
         self.game = Game(dealerAgent, playerAgents)
-        self.playaHand = Hand()
-        self.dealerHand = Hand()
+        self.playaHand = Hand(1)
+        self.dealerHand = Hand(0)
         
     # Ensure that player blackjack beats dealer non-blackjack
     def testPlayaBlackjackBeatsDealerNonBlackJack(self):

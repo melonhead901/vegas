@@ -97,11 +97,16 @@ class Game:
                 if self.dealerHand.isBust():
                     break
 
+        print
+        print "Dealer has: %s" % self.dealerHand.getValidCount()
+        print "Player has: %s" % map(Hand.getValidCount, self.inactiveHandPlayerMap.keys())
+
         # The dealer has finished executing its actions. Compare
         # the dealer's hands with those of the players to determine
         # winners and losers.
         for (hand, playerAgent) in self.inactiveHandPlayerMap.items():
             result = self.determineWinner(hand, self.dealerHand)
+            print result
             if result < 0:
                 playerAgent.lose(self.gameState)
                 self.loses[playerAgent] += 1
@@ -170,8 +175,8 @@ if __name__ == '__main__':
     dealerAgent = DealerAgent()
 
     #playerAgents = [QLearningAgent()]
-    playerAgents = [ReflexAgent()]
-    #playerAgents = [StandingAgent()]
+    #playerAgents = [ReflexAgent()]
+    playerAgents = [StandingAgent()]
 
     print "Training..."
     game = Game(dealerAgent, playerAgents)

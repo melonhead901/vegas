@@ -13,17 +13,17 @@ class QLearningAgent(Agent):
         self.q_values = {}
         self.last_action = None
         self.last_features = None
-  
+
     def getQValue(self, features, action):
         return self.q_values.get((features, action), 0.0)
-  
+
     def getValue(self, features, hand):
         actions = hand.getPossibleActions()
         if not actions:
           return 0.0
         else:
           return max(map(lambda action: self.getQValue(features, action), actions))
-  
+
     def getPolicy(self, features, hand):
         # Cheating
         if features[0][0][0] <= 8:
@@ -43,7 +43,7 @@ class QLearningAgent(Agent):
             elif value == max_value:
               best_actions.append(action)
           return random.choice(best_actions)
-  
+
     def stateToFeatures(self, gameState):
         hands = map(lambda hand: (hand.getSoftCount(), hand.getHardCount()), gameState.getPlayerHands().keys())
         features = (
@@ -78,7 +78,7 @@ class QLearningAgent(Agent):
             self.update(features, hand, 0.0)
 
         actions = hand.getPossibleActions()
-        
+
         if not actions:
             action = None
         elif random.random() < self.epsilon:

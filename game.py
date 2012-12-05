@@ -2,7 +2,7 @@
 
 import argparse
 import sys
- 
+
 from actions import Actions
 from deck import Deck
 from hand import Hand
@@ -130,7 +130,7 @@ class Game:
             deck.give(card)
         # The deck should have all of the cards back.
         deck.verifyFull()
-        
+
     # Returns less than 0 if the player loses, greater than 0 if he wins, and 0 for a push
     def determineWinner(self, playerHand, dealerHand):
         # Player loses if both player and dealer bust
@@ -148,7 +148,7 @@ class Game:
                 playerAgent, self.wins[playerAgent], self.losses[playerAgent],
                 self.ties[playerAgent], self.balances[playerAgent]) for playerAgent in self.playerAgents]
         return '\n'.join(playerStrings)
-    
+
 # Print the name of the policy set and the header dealer cards
 def printPolicyHeader(name):
     s = name + "\t"
@@ -161,9 +161,9 @@ def printNoAcePairPolicy(agent):
     printPolicyHeader("sc")
     dummyHand = Hand(1)
     dummyHand.getPossibleActions = lambda: [Actions.HIT, Actions.STAND, Actions.DOUBLE_DOWN]
-        
-    for playerSoftCount in range(20,1,-1):    
-        str = "{0}\t".format(playerSoftCount)    
+
+    for playerSoftCount in range(20,1,-1):
+        str = "{0}\t".format(playerSoftCount)
         for dealerSoftCard in range(2,12):
             # Construct features for this cell
             feature = (((playerSoftCount, playerSoftCount),), dealerSoftCard)
@@ -181,15 +181,15 @@ def printNoAcePairPolicy(agent):
 #              if key in agent.q_values:
 #                  str += "%0.2f\t" % agent.q_values[key]
 #              else:
-#                  str += '\t' 
-        print str + "\033[1;37m"     
-  
+#                  str += '\t'
+        print str + "\033[1;37m"
+
 def printAcePolicy(agent):
     printPolicyHeader("aces")
-    for nonAceCard in range(10,1,-1):    
-        str = "{0}\t".format(nonAceCard)    
+    for nonAceCard in range(10,1,-1):
+        str = "{0}\t".format(nonAceCard)
         for dealerSoftCard in range(2,12):
-            
+
             dummyHand = Hand(1)
             dummyHand.addCard(Card(1, 0))
             dummyHand.addCard(Card(1, nonAceCard-1))
@@ -209,14 +209,13 @@ def printAcePolicy(agent):
 #              if key in agent.q_values:
 #                  str += "%0.2f\t" % agent.q_values[key]
 #              else:
-#                  str += '\t' 
+#                  str += '\t'
         print str + "\033[1;37m"
-    
+
 def printPolicy(agent):
     printNoAcePairPolicy(agent)
-    printAcePolicy
-      
-        
+    printAcePolicy(agent)
+    print "\033[0m"
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Play some games of Blackjack.")
@@ -260,4 +259,9 @@ if __name__ == '__main__':
     game = Game(dealerAgent, playerAgents)
     game.executeGame(realRounds)
     print game.resultString()
-    printPolicy(playerAgents[1])
+    for (playerAgentString, playerAgent) in zip(playerAgentStrings, playerAgents):
+        try:
+            print "{0} policies:".format(playerAgentString)
+            printPolicy(playerAgent)
+        except AttributeError:
+            print "{0} does not report policies".format(playerAgentString)

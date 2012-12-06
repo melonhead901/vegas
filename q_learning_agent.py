@@ -26,7 +26,7 @@ class QLearningAgent(Agent):
 
     def getPolicy(self, features, hand):
         # Cheating
-        if features[0][0][0] <= 8:
+        if features[0] <= 8:
           return Actions.HIT
 
         actions = hand.getPossibleActions()
@@ -44,10 +44,12 @@ class QLearningAgent(Agent):
               best_actions.append(action)
           return random.choice(best_actions)
 
-    def stateToFeatures(self, gameState):
-        hands = map(lambda hand: (hand.getSoftCount(), hand.getHardCount()), gameState.getPlayerHands().keys())
+    def stateToFeatures(self, gameState, hand):
+        hands = map(lambda hand: (hand.getHardCount(), hand.getHasAce()), gameState.getPlayerHands().keys())
         features = (
-            tuple(hands),  # TODO: can see everyone's hand atm - fine w/ just one agent
+            hand.getHardCount(),
+            hand.getHasAce(),
+            # tuple(hands),  # TODO: currently ignore other hands
             gameState.getDealerUpCard().getSoftCount())
         return features
 
@@ -73,7 +75,7 @@ class QLearningAgent(Agent):
 #            print '\tthere %f' % self.q_values.get((self.last_features, self.last_action), 0.0)
 
     def getNextAction(self, gameState, hand):
-        features = self.stateToFeatures(gameState)
+        features = self.stateToFeatures(gameState, hand)
         if self.last_features and self.last_action:
             self.update(features, hand, 0.0)
 
@@ -92,7 +94,7 @@ class QLearningAgent(Agent):
         return action
 
     def gameOver(self, gameState, hand, reward):
-        features = self.stateToFeatures(gameState)
+        features = self.stateToFeatures(gameState, hand)
         self.update(features, hand, reward)
 
         self.last_action = None

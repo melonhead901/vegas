@@ -105,9 +105,9 @@ class Game:
                 if dealerHand.isBust():
                     break
 
-        print
-        print "Dealer has: %s" % self.dealerHand.getValidCount()
-        print "Player has: %s" % map(Hand.getValidCount, self.inactiveHandPlayerMap.keys())
+#       print
+#       print "Dealer has: %s" % dealerHand.getValidCount()
+#       print "Player has: %s" % map(Hand.getValidCount, inactiveHandPlayerMap.keys())
 
         # The dealer has finished executing its actions. Compare
         # the dealer's hands with those of the players to determine
@@ -115,7 +115,7 @@ class Game:
         endingState = GameState(handPlayerMap, dealerHand, deck)
         for (hand, playerAgent) in inactiveHandPlayerMap.items():
             result = self.determineWinner(hand, dealerHand)
-            print result
+#           print result
             if result < 0:
                 playerAgent.lose(endingState, hand)
                 self.losses[playerAgent] += 1
@@ -161,6 +161,14 @@ def printPolicyHeader(name):
         s += "{0}\t".format(i)
     print s
 
+def getColor(action):
+    if action == 'S':
+        return "\033[31m"
+    elif action == 'D':
+        return "\033[34m"
+    else:
+        return "\033[32m"
+  
 # Print the normal hand totals (no pairs/aces)
 def printNoAcePairPolicy(agent):
     printPolicyHeader("sc")
@@ -171,22 +179,16 @@ def printNoAcePairPolicy(agent):
         str = "{0}\t".format(playerSoftCount)
         for dealerSoftCard in range(2,12):
             # Construct features for this cell
-            feature = (((playerSoftCount, playerSoftCount),), dealerSoftCard)
+            features = (playerSoftCount, False, dealerSoftCard)
             # print the action for that feature
-            for action in [Actions.STAND]:
-              key = (feature, action)
-              action = agent.getPolicy(feature, dummyHand)[0]
-              if action == 'S':
-                  color = "\033[31m"
-              elif action == 'D':
-                  color = "\033[34m"
-              else:
-                  color = "\033[32m"
-              str += '{0}{1}\t'.format(color, action)
-#              if key in agent.q_values:
-#                  str += "%0.2f\t" % agent.q_values[key]
-#              else:
-#                  str += '\t'
+            action = agent.getPolicy(features, dummyHand)[0]
+            color = getColor(action)
+            str += '{0}{1}\t'.format(color, action)
+#           key = (features, action)
+#           if key in agent.q_values:
+#               str += "%0.2f\t" % agent.q_values[key]
+#           else:
+#               str += '\t'
         print str + "\033[1;37m"
 
 def printAcePolicy(agent):
@@ -199,22 +201,16 @@ def printAcePolicy(agent):
             dummyHand.addCard(Card(1, 0))
             dummyHand.addCard(Card(1, nonAceCard-1))
             # Construct features for this cell
-            feature = (((nonAceCard+1, nonAceCard+11),), dealerSoftCard)
-            # print the action for that feature
-            for action in [Actions.STAND]:
-              key = (feature, action)
-              action = agent.getPolicy(feature, dummyHand)[0]
-              if action == 'S':
-                  color = "\033[31m"
-              elif action == 'D':
-                  color = "\033[34m"
-              else:
-                  color = "\033[32m"
-              str += '{0}{1}\t'.format(color, action)
-#              if key in agent.q_values:
-#                  str += "%0.2f\t" % agent.q_values[key]
-#              else:
-#                  str += '\t'
+            features = (nonAceCard+1, True, dealerSoftCard)
+            # print the action for that features
+            action = agent.getPolicy(features, dummyHand)[0]
+            color = getColor(action)
+            str += '{0}{1}\t'.format(color, action)
+#           key = (features, action)
+#           if key in agent.q_values:
+#               str += "%0.2f\t" % agent.q_values[key]
+#           else:
+#               str += '\t'
         print str + "\033[1;37m"
 
 def printPolicy(agent):
@@ -265,8 +261,6 @@ if __name__ == '__main__':
     game.executeGame(realRounds)
     print game.resultString()
     for (playerAgentString, playerAgent) in zip(playerAgentStrings, playerAgents):
-        try:
+        if isinstance(playerAgent, QLearningAgent):
             print "{0} policies:".format(playerAgentString)
             printPolicy(playerAgent)
-        except AttributeError:
-            print "{0} does not report policies".format(playerAgentString)

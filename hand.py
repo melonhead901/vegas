@@ -26,7 +26,7 @@ class Hand:
         # The hard count of the hand.
         self._count = 0
         # Whether this hand has an ace.
-        self._hasAce = False
+        self._hasAce = False        
 
     def addCard(self, card):
         """

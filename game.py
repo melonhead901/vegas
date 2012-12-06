@@ -12,6 +12,7 @@ from game_state import GameState
 from q_learning_agent import QLearningAgent
 from reflex_agent import ReflexAgent
 from standing_agent import StandingAgent
+from value_iteration_agent import ValueIterationAgent
 from card import Card
 
 class Game:
@@ -242,6 +243,10 @@ if __name__ == '__main__':
             playerAgents.append(StandingAgent())
         elif playerAgentString == "HumanAgent":
             playerAgents.append(HumanAgent())
+        elif playerAgentString == "ValueIterationAgent":
+            # TODO(snowden): This should be a command-line option
+            # or something.
+            playerAgents.append(ValueIterationAgent(5))
         else:
             print "Unrecognized agent {0}".format(playerAgentString)
             sys.exit(1)

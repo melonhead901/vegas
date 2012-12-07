@@ -253,16 +253,17 @@ if __name__ == '__main__':
 
     dealerAgent = DealerAgent()
 
-    # TODO: only train w/ agents that need it
     if trainingRounds > 0:
+        trainingAgents = filter(lambda x: isinstance(x, QLearningAgent), playerAgents)
         print "Training ({0} rounds)...".format(trainingRounds)
-        game = Game(dealerAgent, playerAgents)
+        game = Game(dealerAgent, trainingAgents)
         game.executeGame(trainingRounds)
 
     for playerAgent in playerAgents:
         if isinstance(playerAgents, QLearningAgent):
             playerAgent.epsilon = 0.0
             playerAgent.alpha = 0.0
+            playerAgent.no_policy_moves_made = 0
 
     print "Testing ({0} rounds)...".format(realRounds)
     game = Game(dealerAgent, playerAgents)
@@ -289,3 +290,4 @@ if __name__ == '__main__':
                     s, ss = '', 0
             if ss != 0:
                 print s
+            print "{0} random moves made".format(playerAgent.no_policy_moves_made)

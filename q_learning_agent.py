@@ -15,6 +15,7 @@ class QLearningAgent(Agent):
         self.last_features = None
 
         self.states_seen = {}
+        self.no_policy_moves_made = 0
 
     def getQValue(self, features, action):
         return self.q_values.get((features, action), 0.0)
@@ -35,15 +36,23 @@ class QLearningAgent(Agent):
         if not actions:
           return None
         else:
+          no_policy = True
+
           max_value = None
           best_actions = []
           for action in actions:
+            if self.q_values.has_key((features, action)):
+              no_policy = False
+
             value = self.getQValue(features, action)
             if value > max_value:
               max_value = value
               best_actions = [action]
             elif value == max_value:
               best_actions.append(action)
+
+          if no_policy:
+            self.no_policy_moves_made = 0
           return random.choice(best_actions)
 
     def stateToFeatures(self, gameState, hand):

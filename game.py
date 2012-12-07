@@ -253,13 +253,16 @@ if __name__ == '__main__':
 
     dealerAgent = DealerAgent()
 
+    # TODO: only train w/ agents that need it
     if trainingRounds > 0:
         print "Training ({0} rounds)...".format(trainingRounds)
         game = Game(dealerAgent, playerAgents)
         game.executeGame(trainingRounds)
 
-    playerAgents[0].epsilon = 0.0
-    playerAgents[0].alpha = 0.0
+    for playerAgent in playerAgents:
+        if isinstance(playerAgents, QLearningAgent):
+            playerAgent.epsilon = 0.0
+            playerAgent.alpha = 0.0
 
     print "Testing ({0} rounds)...".format(realRounds)
     game = Game(dealerAgent, playerAgents)
@@ -269,3 +272,20 @@ if __name__ == '__main__':
         if isinstance(playerAgent, QLearningAgent):
             print "{0} policies:".format(playerAgentString)
             printPolicy(playerAgent)
+            
+            print "states seen: {0}".format(len(playerAgent.states_seen))
+            values = playerAgent.states_seen.values()
+            freq = {}
+            for value in values:
+                freq[value] = freq.get(value, 0) + 1
+            s, ss = '', 0
+            freq_items = freq.items()
+            freq_items.sort()
+            for (times_seen, num_states) in freq_items:
+                s += "%3u:%u\t" % (times_seen, num_states)
+                ss += 1
+                if ss > 7:
+                    print s
+                    s, ss = '', 0
+            if ss != 0:
+                print s

@@ -14,6 +14,8 @@ class QLearningAgent(Agent):
         self.last_action = None
         self.last_features = None
 
+        self.states_seen = {}
+
     def getQValue(self, features, action):
         return self.q_values.get((features, action), 0.0)
 
@@ -54,6 +56,9 @@ class QLearningAgent(Agent):
         return features
 
     def update(self, features, hand, reward):
+        key = (self.last_features, self.last_action)
+        self.states_seen[key] = self.states_seen.get(key, 0) + 1
+
 #        if self.last_features == (((20, 20),), 7) and self.last_action == Actions.STAND:
 #          print 'here %f (reward: %f) (last_action: %s) (q_values: %f, %f)' % \
 #              (self.q_values.get((self.last_features, self.last_action), 0.0), \

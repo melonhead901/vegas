@@ -52,7 +52,7 @@ class QLearningAgent(Agent):
               best_actions.append(action)
 
           if no_policy:
-            self.no_policy_moves_made = 0
+            self.no_policy_moves_made += 1
           return random.choice(best_actions)
 
     def stateToFeatures(self, gameState, hand):

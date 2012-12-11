@@ -8,12 +8,12 @@ class ValueIterationAgent(Agent):
     self.mdp = BlackjackMarkovDecisionProcess()
     self.values = {}
     self.discount = 0.9
-    for iteration in range(0, iterations):
+    states = self.mdp.getStates()
+    for _ in range(0, iterations):
       nextValues = {}
-      states = self.mdp.getStates()
       for state in states:
         if self.mdp.isTerminal(state):
-          nextValues[state] = 0
+          nextValues[state] = self.values.get(state, 0)
         else:
           nextValues[state] = max(
             map(lambda action: self.getQValue(state, action),
@@ -21,13 +21,17 @@ class ValueIterationAgent(Agent):
       self.values = nextValues
 
   def getNextAction(self, gameState, hand):
-    state = (False, hand.getHasAce(), hand.getHardCount(),
+    state = (False, len(hand.getCards()) == 2, hand.isDoubleDown(),
+             hand.getHasAce(), hand.getHardCount(),
              gameState.getDealerUpCard().getSoftCount())
+    return self.getActionForState(state)
+
+  def getActionForState(self, state):
     actions = self.mdp.getPossibleActions(state)
     if not actions:
       return None
     else:
-      maxValue, maxActions = None, None
+      maxValue, maxActions = None, []
       for action in actions:
         value = self.getQValue(state, action)
         if value == maxValue:
@@ -41,13 +45,22 @@ class ValueIterationAgent(Agent):
     The q-value of the state-action pair.
     """
     statesAndProbs = self.mdp.getTransitionStatesAndProbs(state, action)
-    # Q_{n+1}(s, a) = \sum_{s' \in S} Pr(s'|s,a)[U(s, a, s') + gamma * V_n(s')]
     qValue = 0
     for transitionState, prob in statesAndProbs:
       reward = self.mdp.getReward(state, action, transitionState)
-      qValue += prob * (self.mdp.getReward(state, action, transitionState) +
-                        self.discount * self.values.get(transitionState, 0))
+      qValue += prob * (reward + self.discount * self.values.get(transitionState, 0))
     return qValue
+
+  def printPolicies(self):
+    for hasAce in [True, False]:
+      print "With{0} aces:".format("" if hasAce else "out")
+      for hardCount in range(2, 22):
+        formatString = "{0}".format(hardCount)
+        for dealerSoftCount in range(2, 12):
+          state = (False, True, False, hasAce, hardCount, dealerSoftCount)
+          action = self.getActionForState(state)
+          formatString += " {0}".format(action[0])
+        print formatString
 
   def __str__(self):
     return "Value iteration agent"

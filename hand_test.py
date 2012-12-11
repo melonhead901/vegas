@@ -279,20 +279,6 @@ class HandTest(unittest.TestCase):
                              "soft count 21 and hard count 11 " \
                              "(BlackJack)", str(hand))
 
-    def hasAceWhenHandDoes(self):
-        hand = Hand(1)
-        hand.addCard(1, 2)
-        hand.addCard(1, 0)
-        hand.addCard(1, 3)
-        self.assertTrue(hand.hasAce())
-
-    def hasAceWhenHandDoesNot(self):
-        hand = Hand(1)
-        hand.addCard(1, 1)
-        hand.addCard(1, 2)
-        hand.addCard(1, 3)
-        self.assertFalse(hand.hasAce())
-
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()

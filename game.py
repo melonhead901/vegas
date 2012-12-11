@@ -265,7 +265,7 @@ if __name__ == '__main__':
         game.executeGame(trainingRounds)
 
     for playerAgent in playerAgents:
-        if isinstance(playerAgents, QLearningAgent):
+        if isinstance(playerAgent, QLearningAgent):
             playerAgent.epsilon = 0.0
             playerAgent.alpha = 0.0
             playerAgent.no_policy_moves_made = 0

@@ -68,6 +68,7 @@ class QLearningAgent(Agent):
         key = (self.last_features, self.last_action)
         self.states_seen[key] = self.states_seen.get(key, 0) + 1
 
+#        KJD: What's with all this commented out code -- plz remove """
 #        if self.last_features == (((20, 20),), 7) and self.last_action == Actions.STAND:
 #          print 'here %f (reward: %f) (last_action: %s) (q_values: %f, %f)' % \
 #              (self.q_values.get((self.last_features, self.last_action), 0.0), \

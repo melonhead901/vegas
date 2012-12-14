@@ -213,15 +213,6 @@ class Hand:
         if self.isBlackJack() != other.isBlackJack():
             return 1 if self.isBlackJack() else -1
         return 0
-    
-    def __eq__(self, other):
-        """
-        Equality of hands is tricky. Currently this is
-        defined as one hand equaling another iff they
-        contain the same cards received in the same order,
-        although it should maybe be order-insensitive.
-        """
-        return self.getCards() == other.getCards()
 
     def getHasAce(self):
         return self._hasAce

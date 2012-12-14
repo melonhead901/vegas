@@ -52,14 +52,20 @@ class ValueIterationAgent(Agent):
     return qValue
 
   def printPolicies(self):
-    for hasAce in [True, False]:
-      print "With{0} aces:".format("" if hasAce else "out")
+    for hasAce in [False, True]:
+      if not hasAce:
+        labelString = "sc"
+      else:
+        labelString = "aces"
+      for dealerSoftCount in range(2, 12):
+        labelString = "{0}\t{1}".format(labelString, dealerSoftCount)
+      print labelString
       for hardCount in range(2, 22):
         formatString = "{0}".format(hardCount)
         for dealerSoftCount in range(2, 12):
           state = (False, True, False, hasAce, hardCount, dealerSoftCount)
           action = self.getActionForState(state)
-          formatString += " {0}".format(action[0])
+          formatString += "\t{0}".format(action[0])
         print formatString
 
   def __str__(self):

@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import argparse
+import random
 import sys
 
 from actions import Actions
@@ -223,14 +224,20 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Play some games of Blackjack.")
     parser.add_argument("-t", "--trainingRounds", type=int, help="The number of training rounds to run.")
     parser.add_argument("-r", "--realRounds", type=int, help="The number of real rounds to run.")
-    parser.add_argument("-p", "--playerAgents", type=str, nargs="+", help="A list of player agents to use")
+    parser.add_argument("-p", "--playerAgents", type=str, nargs="+", help="A list of player agents to use.")
+    parser.add_argument("-s", "--randomSeed", type=int, help="The random seed to use (optional).")
 
     args = parser.parse_args()
     trainingRounds = args.trainingRounds
     realRounds = args.realRounds
+    randomSeed = args.randomSeed
     if realRounds <= 0:
         print "Number of real rounds must be > 0 but was {0}".format(realRounds)
         sys.exit(1)
+
+    if randomSeed:
+        random.seed(randomSeed)
+
     playerAgentStrings = args.playerAgents
 
     playerAgents = []

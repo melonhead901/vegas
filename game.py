@@ -235,8 +235,8 @@ if __name__ == '__main__':
                             " frequency table for QLearningAgents", action="store_true")
 
     parser.add_argument("-a", "--alpha", type=float, help="If provided, QLearningAgents use a learning rate of a", default=0.3)
-    parser.add_argument("-d", "--discount", type=float, help="If provided, QLearningAgents use a discount factor of d", default=0.1)
-    parser.add_argument("-e", "--epsilon", type=float, help="If provided, QLearningAgents make random moves with probability e", default=0.3)
+    parser.add_argument("-d", "--discount", type=float, help="If provided, QLearningAgents use a discount factor of d", default=0.2)
+    parser.add_argument("-e", "--epsilon", type=float, help="If provided, QLearningAgents make random moves with probability e", default=0.2)
 
     args = parser.parse_args()
     trainingRounds = args.trainingRounds

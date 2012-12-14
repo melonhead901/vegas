@@ -226,12 +226,16 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Play some games of Blackjack.")
     parser.add_argument("-t", "--trainingRounds", type=int, help="The number of training rounds to run")
     parser.add_argument("-r", "--realRounds", type=int, help="The number of real rounds to run")
-    parser.add_argument("-s", "--randomSeed", type=int, help="The random seed to use")
     parser.add_argument("-i", "--iterations", type=int, help="The number of iterations of value iteration to run")
     parser.add_argument("-p", "--playerAgents", type=str, nargs="+", help="A list of player agents to use")
+    parser.add_argument("-s", "--randomSeed", type=int, help="If provided, seeds the random number generator with the given value")
     parser.add_argument("-pp", "--printPolicies", help="If provided, will print the policy of QLearningAgents", action="store_true")
     parser.add_argument("-ps", "--printStatesSeenTable", help="If provided, will print a states seen count"
                             " frequency table for QLearningAgents", action="store_true")
+
+    parser.add_argument("-a", "--alpha", type=float, help="If provided, QLearningAgents use a learning rate of a", default=0.2)
+    parser.add_argument("-d", "--discount", type=float, help="If provided, QLearningAgents use a discount factor of d", default=0.8)
+    parser.add_argument("-e", "--epsilon", type=float, help="If provided, QLearningAgents make random moves with probability e", default=0.1)
 
     args = parser.parse_args()
     trainingRounds = args.trainingRounds
@@ -250,7 +254,7 @@ if __name__ == '__main__':
     playerAgents = []
     for playerAgentString in playerAgentStrings:
         if playerAgentString == "QLearningAgent":
-            playerAgents.append(QLearningAgent())
+            playerAgents.append(QLearningAgent(args.alpha, args.discount, args.epsilon))
         elif playerAgentString == "CountLearningAgent":
             playerAgents.append(CountLearningAgent())
         elif playerAgentString == "ReflexAgent":

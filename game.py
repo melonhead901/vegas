@@ -222,10 +222,13 @@ def printPolicy(agent):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Play some games of Blackjack.")
-    parser.add_argument("-t", "--trainingRounds", type=int, help="The number of training rounds to run.")
-    parser.add_argument("-r", "--realRounds", type=int, help="The number of real rounds to run.")
-    parser.add_argument("-i", "--iterations", type=int, help="The number of iterations of value iteration to run.");
+    parser.add_argument("-t", "--trainingRounds", type=int, help="The number of training rounds to run")
+    parser.add_argument("-r", "--realRounds", type=int, help="The number of real rounds to run")
+    parser.add_argument("-i", "--iterations", type=int, help="The number of iterations of value iteration to run")
     parser.add_argument("-p", "--playerAgents", type=str, nargs="+", help="A list of player agents to use")
+    parser.add_argument("-pp", "--printPolicies", type=str, help="If provided, will print the policy of QLearningAgents")
+    parser.add_argument("-ps", "--printStatesSeenTable", type=str, help="If provided, will print a states seen count"
+                            " frequency table for QLearningAgents")
 
     args = parser.parse_args()
     trainingRounds = args.trainingRounds
@@ -279,25 +282,27 @@ if __name__ == '__main__':
     print game.resultString()
     for (playerAgentString, playerAgent) in zip(playerAgentStrings, playerAgents):
         if isinstance(playerAgent, QLearningAgent):
-            print "{0} policies:".format(playerAgentString)
-            printPolicy(playerAgent)
+            if args.printPolicies:
+                print "{0} policies:".format(playerAgentString)
+                printPolicy(playerAgent)
             
-            print "states seen: {0}".format(len(playerAgent.states_seen))
-            values = playerAgent.states_seen.values()
-            freq = {}
-            for value in values:
-                freq[value] = freq.get(value, 0) + 1
-            s, ss = '', 0
-            freq_items = freq.items()
-            freq_items.sort()
-            for (times_seen, num_states) in freq_items:
-                s += "%3u:%u\t" % (times_seen, num_states)
-                ss += 1
-                if ss > 7:
+            if args.printStatesSeenTable:
+                print "states seen: {0}".format(len(playerAgent.states_seen))
+                values = playerAgent.states_seen.values()
+                freq = {}
+                for value in values:
+                    freq[value] = freq.get(value, 0) + 1
+                s, ss = '', 0
+                freq_items = freq.items()
+                freq_items.sort()
+                for (times_seen, num_states) in freq_items:
+                    s += "%3u:%u\t" % (times_seen, num_states)
+                    ss += 1
+                    if ss > 7:
+                        print s
+                        s, ss = '', 0
+                if ss != 0:
                     print s
-                    s, ss = '', 0
-            if ss != 0:
-                print s
             print "{0} random moves made".format(playerAgent.no_policy_moves_made)
         elif isinstance(playerAgent, ValueIterationAgent):
             playerAgent.printPolicies()

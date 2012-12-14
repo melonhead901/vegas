@@ -38,8 +38,7 @@ class CountLearningAgent(QLearningAgent):
                 # else 8 or 9, no change to count
                 
     def stateToFeatures(self, gameState, playerHand):
-        return QLearningAgent.stateToFeatures(self, gameState, playerHand) + (self.count,)
-    
+        return (QLearningAgent.stateToFeatures(self, gameState, playerHand) + (self.count,))
     
     def __str__(self):
         return "Count learning agent"

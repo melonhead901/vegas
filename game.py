@@ -17,6 +17,7 @@ from reflex_agent import ReflexAgent
 from standing_agent import StandingAgent
 from count_learning_agent import CountLearningAgent
 from value_iteration_agent import ValueIterationAgent
+from ace_count_learning_agent import AceCountLearningAgent
 from card import Card
 
 class Game:
@@ -256,7 +257,9 @@ if __name__ == '__main__':
         if playerAgentString == "QLearningAgent":
             playerAgents.append(QLearningAgent(args.alpha, args.discount, args.epsilon))
         elif playerAgentString == "CountLearningAgent":
-            playerAgents.append(CountLearningAgent())
+            playerAgents.append(CountLearningAgent())            
+        elif playerAgentString == "AceCountLearningAgent":
+            playerAgents.append(AceCountLearningAgent())
         elif playerAgentString == "ReflexAgent":
             playerAgents.append(ReflexAgent())
         elif playerAgentString == "StandingAgent":

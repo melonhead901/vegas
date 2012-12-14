@@ -115,7 +115,7 @@ class Game:
         # The dealer has finished executing its actions. Compare
         # the dealer's hands with those of the players to determine
         # winners and losers.
-        endingState = GameState(handPlayerMap, dealerHand, deck)
+        endingState = GameState(inactiveHandPlayerMap, dealerHand, deck)
         for (hand, playerAgent) in inactiveHandPlayerMap.items():
             result = self.determineWinner(hand, dealerHand)
 #           print result

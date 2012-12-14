@@ -33,3 +33,15 @@ class Agent:
         Notify this agent of a tie for the purpose
         of record-keeping.
         """
+
+    def needsTraining(self):
+        """
+        Whether or not the agent should participate in 
+        training rounds.
+        """
+        return False
+
+    def trainingOver(self):
+        """
+        Notify the agent that training is over.
+        """

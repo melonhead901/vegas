@@ -1,9 +1,11 @@
 #!/usr/bin/python
 
 import argparse
+import random
 import sys
 
 from actions import Actions
+from agent import Agent
 from deck import Deck
 from hand import Hand
 from human_agent import HumanAgent
@@ -225,19 +227,25 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Play some games of Blackjack.")
     parser.add_argument("-t", "--trainingRounds", type=int, help="The number of training rounds to run")
     parser.add_argument("-r", "--realRounds", type=int, help="The number of real rounds to run")
+    parser.add_argument("-s", "--randomSeed", type=int, help="The random seed to use")
     parser.add_argument("-i", "--iterations", type=int, help="The number of iterations of value iteration to run")
     parser.add_argument("-p", "--playerAgents", type=str, nargs="+", help="A list of player agents to use")
-    parser.add_argument("-pp", "--printPolicies", type=str, help="If provided, will print the policy of QLearningAgents")
-    parser.add_argument("-ps", "--printStatesSeenTable", type=str, help="If provided, will print a states seen count"
-                            " frequency table for QLearningAgents")
+    parser.add_argument("-pp", "--printPolicies", help="If provided, will print the policy of QLearningAgents", action="store_true")
+    parser.add_argument("-ps", "--printStatesSeenTable", help="If provided, will print a states seen count"
+                            " frequency table for QLearningAgents", action="store_true")
 
     args = parser.parse_args()
     trainingRounds = args.trainingRounds
     realRounds = args.realRounds
+    randomSeed = args.randomSeed
     iterations = args.iterations
     if realRounds <= 0:
         print "Number of real rounds must be > 0 but was {0}".format(realRounds)
         sys.exit(1)
+
+    if randomSeed:
+        random.seed(randomSeed)
+
     playerAgentStrings = args.playerAgents
 
     playerAgents = []
@@ -268,16 +276,13 @@ if __name__ == '__main__':
     dealerAgent = DealerAgent()
 
     if trainingRounds > 0:
-        trainingAgents = filter(lambda x: isinstance(x, QLearningAgent), playerAgents)
+        trainingAgents = filter(lambda x: x.needsTraining(), playerAgents)
         print "Training ({0} rounds)...".format(trainingRounds)
         game = Game(dealerAgent, trainingAgents)
         game.executeGame(trainingRounds)
 
     for playerAgent in playerAgents:
-        if isinstance(playerAgent, QLearningAgent):
-            playerAgent.epsilon = 0.0
-            playerAgent.alpha = 0.0
-            playerAgent.no_policy_moves_made = 0
+        playerAgent.trainingOver()
 
     print "Testing ({0} rounds)...".format(realRounds)
     game = Game(dealerAgent, playerAgents)
@@ -308,4 +313,5 @@ if __name__ == '__main__':
                     print s
             print "{0} random moves made".format(playerAgent.no_policy_moves_made)
         elif isinstance(playerAgent, ValueIterationAgent):
-            playerAgent.printPolicies()
+            if args.printPolicies:
+                playerAgent.printPolicies()

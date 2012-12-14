@@ -45,6 +45,15 @@ class Deck:
                 for _ in range(self.sets):
                     self.activePile.append(Card(suit, value))
         self.inactivePile = []
+        # Count of the deck
+        self.count = 0
+        # Opposite count of cards in the inactive pile
+        self.inactiveCount = 0
+        
+        # Number of aces left in the deck
+        self.aceCount = self.suits * self.sets
+        # Number of aces in the inactive pile
+        self.inactiveAceCount = 0
         self.shuffle()
 
     def numSets(self):
@@ -117,13 +126,18 @@ class Deck:
             if not self.inactivePile:
                 raise ValueError("No cards remain in the deck")
             self.shuffle()
-        return self.activePile.pop()
+        card = self.activePile.pop()
+        self.aceCount -= 1 if card.value is Card.ACE_VALUE else 0
+        self.count += Card.COUNT_VAL[card.value]
+        return card
 
     def give(self, card):
         """
         Return the given card to the pile of inactive
         cards.
         """
+        self.inactiveAceCount += 1 if card.value is Card.ACE_VALUE else 0
+        self.inactiveCount -= Card.COUNT_VAL[card.value]
         self.inactivePile.append(card)
 
     def shuffle(self):
@@ -131,6 +145,10 @@ class Deck:
         Combine the active and inactive decks and
         randomize their order.
         """
+        self.count += self.inactiveCount
+        self.inactiveCount = 0 
+        self.aceCount += self.inactiveAceCount
+        self.inactiveAceCount = 0
         self.activePile.extend(self.inactivePile)
         self.inactivePile = []
         random.shuffle(self.activePile)
@@ -154,3 +172,7 @@ class Deck:
                     "Expected at most {0} instances of card {1} but " \
                         "there are at least {2}".format(
                             self.numSets(), card, newCount))
+        if self.count + self.inactiveCount != 0:
+            raise ValueError("Count must be 0 fools")
+        if self.aceCount + self.inactiveAceCount != self.sets * self.suits:
+            raise ValueError("Missing or extra ace -- check with the pigs")

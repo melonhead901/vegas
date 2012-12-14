@@ -2,8 +2,15 @@
 
 class Card:    
     # Cards are 0-indexed so the ace's value is 0
-    ACE_VALUE = 0    
-    
+    ACE_VALUE = 0
+
+    # Value      0  1  2  3  4  5  6  7  8  9  10   11  12
+    # Card       A  2  3  4  5  6  7  8  9  0   J    Q  K
+    COUNT_VAL = [-1, 1, 1, 2, 2, 2, 1, 0, 0, -2, -2, -2, -2]  # Complicated
+
+    #COUNT_VAL = [-1, 1, 1, 1, 1, 1, 0, 0, 0, -1, -1, -1, -1] # Simple
+
+
     """
     A card represents a suit, value pair. Card suits
     are 0-based and are ordered as Clubs, Diamonds,

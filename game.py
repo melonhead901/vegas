@@ -10,6 +10,7 @@ from hand import Hand
 from human_agent import HumanAgent
 from dealer_agent import DealerAgent
 from game_state import GameState
+from no_bust_agent import NoBustAgent
 from q_learning_agent import QLearningAgent
 from reflex_agent import ReflexAgent
 from standing_agent import StandingAgent
@@ -31,7 +32,7 @@ class Game:
               self.ties[playerAgent] = self.balances[playerAgent] = 0
 
     def executeGame(self, numRounds):
-        for i in range(numRounds):
+        for _ in range(numRounds):
             # print "Round {0}".format(i)
             self.executeRound()
 
@@ -178,27 +179,26 @@ def printNoAcePairPolicy(agent):
     dummyHand.getPossibleActions = lambda: [Actions.HIT, Actions.STAND, Actions.DOUBLE_DOWN]
 
     for playerSoftCount in range(20,1,-1):
-        str = "{0}\t".format(playerSoftCount)
+        printString = "{0}\t".format(playerSoftCount)
         for dealerSoftCard in range(2,12):
             # Construct features for this cell
             features = (playerSoftCount, False, dealerSoftCard)
             # print the action for that feature
             action = agent.getPolicy(features, dummyHand)[0]
             color = getColor(action)
-            str += '{0}{1}\t'.format(color, action)
+            printString += '{0}{1}\t'.format(color, action)
 #           key = (features, action)
 #           if key in agent.q_values:
 #               str += "%0.2f\t" % agent.q_values[key]
 #           else:
 #               str += '\t'
-        print str + "\033[1;37m"
+        print printString + "\033[1;37m"
 
 def printAcePolicy(agent):
     printPolicyHeader("aces")
     for nonAceCard in range(10,1,-1):
-        str = "{0}\t".format(nonAceCard)
+        printString = "{0}\t".format(nonAceCard)
         for dealerSoftCard in range(2,12):
-
             dummyHand = Hand(1)
             dummyHand.addCard(Card(1, 0))
             dummyHand.addCard(Card(1, nonAceCard-1))
@@ -207,13 +207,13 @@ def printAcePolicy(agent):
             # print the action for that features
             action = agent.getPolicy(features, dummyHand)[0]
             color = getColor(action)
-            str += '{0}{1}\t'.format(color, action)
+            printString += '{0}{1}\t'.format(color, action)
 #           key = (features, action)
 #           if key in agent.q_values:
 #               str += "%0.2f\t" % agent.q_values[key]
 #           else:
 #               str += '\t'
-        print str + "\033[1;37m"
+        print printString + "\033[1;37m"
 
 def printPolicy(agent):
     printNoAcePairPolicy(agent)
@@ -224,13 +224,15 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Play some games of Blackjack.")
     parser.add_argument("-t", "--trainingRounds", type=int, help="The number of training rounds to run.")
     parser.add_argument("-r", "--realRounds", type=int, help="The number of real rounds to run.")
-    parser.add_argument("-p", "--playerAgents", type=str, nargs="+", help="A list of player agents to use.")
     parser.add_argument("-s", "--randomSeed", type=int, help="The random seed to use (optional).")
+    parser.add_argument("-i", "--iterations", type=int, help="The number of iterations of value iteration to run.");
+    parser.add_argument("-p", "--playerAgents", type=str, nargs="+", help="A list of player agents to use")
 
     args = parser.parse_args()
     trainingRounds = args.trainingRounds
     realRounds = args.realRounds
     randomSeed = args.randomSeed
+    iterations = args.iterations
     if realRounds <= 0:
         print "Number of real rounds must be > 0 but was {0}".format(realRounds)
         sys.exit(1)
@@ -248,12 +250,15 @@ if __name__ == '__main__':
             playerAgents.append(ReflexAgent())
         elif playerAgentString == "StandingAgent":
             playerAgents.append(StandingAgent())
+        elif playerAgentString == "NoBustAgent":
+            playerAgents.append(NoBustAgent())
         elif playerAgentString == "HumanAgent":
             playerAgents.append(HumanAgent())
         elif playerAgentString == "ValueIterationAgent":
-            # TODO(snowden): This should be a command-line option
-            # or something.
-            playerAgents.append(ValueIterationAgent(5))
+            if not iterations:
+                print "Number of iterations must be specified with ValueIterationAgent"
+                sys.exit(1)
+            playerAgents.append(ValueIterationAgent(iterations))
         else:
             print "Unrecognized agent {0}".format(playerAgentString)
             sys.exit(1)
@@ -267,7 +272,7 @@ if __name__ == '__main__':
         game.executeGame(trainingRounds)
 
     for playerAgent in playerAgents:
-        if isinstance(playerAgents, QLearningAgent):
+        if isinstance(playerAgent, QLearningAgent):
             playerAgent.epsilon = 0.0
             playerAgent.alpha = 0.0
             playerAgent.no_policy_moves_made = 0
@@ -298,3 +303,5 @@ if __name__ == '__main__':
             if ss != 0:
                 print s
             print "{0} random moves made".format(playerAgent.no_policy_moves_made)
+        elif isinstance(playerAgent, ValueIterationAgent):
+            playerAgent.printPolicies()

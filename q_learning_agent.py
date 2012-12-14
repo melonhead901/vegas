@@ -55,11 +55,11 @@ class QLearningAgent(Agent):
             self.no_policy_moves_made += 1
           return random.choice(best_actions)
 
-    def stateToFeatures(self, gameState, hand):
+    def stateToFeatures(self, gameState, playerHand):
         hands = map(lambda hand: (hand.getHardCount(), hand.getHasAce()), gameState.getPlayerHands().keys())
         features = (
-            hand.getHardCount(),
-            hand.getHasAce(),
+            playerHand.getHardCount(),
+            playerHand.getHasAce(),
             # tuple(hands),  # TODO: currently ignore other hands
             gameState.getDealerUpCard().getSoftCount())
         return features

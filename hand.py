@@ -167,7 +167,7 @@ class Hand:
             raise ValueError("Hitting on this hand is not allowed: {0}".format(self))
         self.addCard(deck.take())
 
-    def stand(self, deck):
+    def stand(self, _):
         """
         Stand on this hand, committing to taking no further action.
         """

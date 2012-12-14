@@ -4,7 +4,6 @@ from agent import Agent
 
 class QLearningAgent(Agent):
 
-    # TODO: play w/ these variables
     def __init__(self, alpha, discount, epsilon):
         self.alpha = alpha
         self.discount = discount

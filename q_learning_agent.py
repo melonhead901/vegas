@@ -60,7 +60,7 @@ class QLearningAgent(Agent):
         features = (
             playerHand.getHardCount(),
             playerHand.getHasAce(),
-            # tuple(hands),  # TODO: currently ignore other hands
+            # tuple(hands), # ignore other hands
             gameState.getDealerUpCard().getSoftCount())
         return features
 
@@ -68,26 +68,10 @@ class QLearningAgent(Agent):
         key = (self.last_features, self.last_action)
         self.states_seen[key] = self.states_seen.get(key, 0) + 1
 
-#        KJD: What's with all this commented out code -- plz remove """
-#        if self.last_features == (((20, 20),), 7) and self.last_action == Actions.STAND:
-#          print 'here %f (reward: %f) (last_action: %s) (q_values: %f, %f)' % \
-#              (self.q_values.get((self.last_features, self.last_action), 0.0), \
-#               reward, \
-#               self.last_action,
-#               self.q_values.get((self.last_features, Actions.HIT), 0.0), \
-#               self.q_values.get((self.last_features, Actions.STAND), 0.0))
-
         value = self.getValue(features, hand)
-#        if self.last_features == (((20, 20),), 7) and self.last_action == Actions.STAND:
-#            print '\tvalue %f' % value
         q_value = self.q_values.get((self.last_features, self.last_action), 0.0)
-#        if self.last_features == (((20, 20),), 7) and self.last_action == Actions.STAND:
-#            print '\tq_value %f' % q_value
         self.q_values[(self.last_features, self.last_action)] = \
             (1.0 - self.alpha) * q_value + self.alpha * (reward + self.discount * value)
-
-#        if self.last_features == (((20, 20),), 7) and self.last_action == Actions.STAND:
-#            print '\tthere %f' % self.q_values.get((self.last_features, self.last_action), 0.0)
 
     def getNextAction(self, gameState, hand):
         features = self.stateToFeatures(gameState, hand)

@@ -126,3 +126,11 @@ class QLearningAgent(Agent):
 
     def __str__(self):
         return "Q learning agent"
+
+    def needsTraining(self):
+      return True
+
+    def trainingOver(self):
+      self.epsilon = 0.0
+      self.alpha = 0.0
+      self.no_policy_moves_made = 0

@@ -9,4 +9,4 @@ class NoBustAgent(Agent):
             return Actions.STAND
 
     def __str__(self):
-        return "Standing agent"
+        return "No bust agent"

@@ -224,7 +224,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Play some games of Blackjack.")
     parser.add_argument("-t", "--trainingRounds", type=int, help="The number of training rounds to run.")
     parser.add_argument("-r", "--realRounds", type=int, help="The number of real rounds to run.")
-    parser.add_argument("-s", "--randomSeed", type=int, help="The random seed to use (optional).")
+    parser.add_argument("-s", "--randomSeed", type=int, help="The random seed to use.")
     parser.add_argument("-i", "--iterations", type=int, help="The number of iterations of value iteration to run.");
     parser.add_argument("-p", "--playerAgents", type=str, nargs="+", help="A list of player agents to use")
 

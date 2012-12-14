@@ -13,6 +13,7 @@ from no_bust_agent import NoBustAgent
 from q_learning_agent import QLearningAgent
 from reflex_agent import ReflexAgent
 from standing_agent import StandingAgent
+from count_learning_agent import CountLearningAgent
 from value_iteration_agent import ValueIterationAgent
 from card import Card
 
@@ -239,6 +240,8 @@ if __name__ == '__main__':
     for playerAgentString in playerAgentStrings:
         if playerAgentString == "QLearningAgent":
             playerAgents.append(QLearningAgent())
+        elif playerAgentString == "CountLearningAgent":
+            playerAgents.append(CountLearningAgent())
         elif playerAgentString == "ReflexAgent":
             playerAgents.append(ReflexAgent())
         elif playerAgentString == "StandingAgent":

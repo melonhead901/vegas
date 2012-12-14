@@ -39,10 +39,10 @@ class CountLearningAgent(QLearningAgent):
                 self.count += CountLearningAgent.ValueArr[card.value]
                 
     def stateToFeatures(self, gameState, playerHand):
-        reportedCount = self.count
-        # Constrain the count to be in the range [-100, 100]
-        reportedCount = min(reportedCount, 100)
-        reportedCount = max(reportedCount, -100)
+        reportedCount = gameState.getDeck().count
+        # Constrain the count to be in the range [-10, 10]
+        reportedCount = min(reportedCount, 10)
+        reportedCount = max(reportedCount, -10)
         # print reportedCount
         return (QLearningAgent.stateToFeatures(self, gameState, playerHand) + (reportedCount,))
     
